@@ -9,7 +9,30 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Shared.Chess.GameManager;
+using Shared.Chess.Pieces;
 using Shared.Identity.Entities;
+using Shared.Types;
+
+
+GameInstance instance = new GameInstance();
+
+IPiece r = new Knight()
+{
+    GameInstance = instance,
+    PieceColor = EPieceColor.White,
+    Position = new Vector(4,4),
+};
+
+r.CheckAvailableMoves();
+Console.WriteLine($"Starting Position: ({r.Position.Y}, {r.Position.X})");
+r.AvailableMoves.ForEach(s => Console.WriteLine($"Position: ({s.Y}, {s.X})"));
+
+
+
+
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
