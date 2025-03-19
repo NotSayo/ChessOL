@@ -1,6 +1,8 @@
-﻿namespace Shared.Identity.Entities;
+﻿using Microsoft.AspNetCore.Identity;
 
-public class SystemUser
+namespace Shared.Identity.Entities;
+
+public class SystemUser : IdentityUser
 {
-    
+    public required string DisplayName { get; set; }
 }
