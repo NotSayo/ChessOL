@@ -1,0 +1,5 @@
+{
+  "ConnectionString": {
+    "Sqlite": "Data Source=./Databases/Chess.db"
+  }
+}
