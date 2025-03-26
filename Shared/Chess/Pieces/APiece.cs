@@ -1,16 +1,20 @@
 ﻿using Shared.Chess.GameManager;
 using Shared.Types;
+using Color = MudBlazor.Color;
 
 namespace Shared.Chess.Pieces;
 
 public abstract class APiece : IPiece
 {
-    public GameInstance GameInstance { get; set; }
-    public EPieceColor PieceColor { get; set; }
-    public Vector Position { get; set; }
+    public required GameInstance GameInstance { get; set; }
+    public required string PieceColor { get; set; }
+    public required Vector Position { get; set; }
     public abstract List<Vector> Moves { get; set; }
     public abstract bool Repetitive { get; set; }
     public List<Vector> AvailableMoves { get; set; } = new();
+    public string Icon { get; set; }
+    public string Identifier { get; set; }
+
     public virtual void CheckAvailableMoves()
     {
         foreach (var vec in Moves)
@@ -38,7 +42,7 @@ public abstract class APiece : IPiece
                     }
                     else
                     {
-                        if (GameInstance.Board[Position.Y + vec.Y + increaseY, Position.X + vec.X + increaseX]!.PieceColor != PieceColor)
+                        if (GameInstance.Board[Position.Y + vec.Y + increaseY, Position.X + vec.X + increaseX]!.PieceColor.ToString() != PieceColor)
                         {
                             AvailableMoves.Add(new Vector(Position.Y + vec.Y + increaseY, Position.X + vec.X + increaseX));
                         }

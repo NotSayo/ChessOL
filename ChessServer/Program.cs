@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using MudBlazor;
 using Shared.Chess.GameManager;
 using Shared.Chess.Pieces;
 using Shared.Identity.Entities;
@@ -21,19 +22,19 @@ GameInstance instance = new GameInstance();
 IPiece r = new Knight()
 {
     GameInstance = instance,
-    PieceColor = EPieceColor.White,
+    PieceColor = "#FFFFFF",
     Position = new Vector(3,4),
 };
 IPiece rook = new Pawn() //TODO adjust pawn movement and taking sideways
 {
     GameInstance = instance,
-    PieceColor = EPieceColor.Black,
+    PieceColor = "#000000",
     Position = new Vector(4, 4)
 };
 
 IPiece otherRook = new Rook()
 {
-    GameInstance = instance, PieceColor = EPieceColor.White,
+    GameInstance = instance, PieceColor = "#FFFFFF",
     Position = new Vector(4, 6)
 };
 var checkArray = new string[8, 8];

@@ -1,4 +1,5 @@
-﻿using Shared.Types;
+﻿using MudBlazor;
+using Shared.Types;
 
 namespace Shared.Chess.Pieces;
 
@@ -12,7 +13,7 @@ public class Pawn : APiece
 
     public Pawn()
     {
-        if (PieceColor == EPieceColor.Black)
+        if (PieceColor == "#000000")
         {
             Moves.Add(new Vector(1, 0));
         }
@@ -46,7 +47,7 @@ public class Pawn : APiece
                 {
                     if (piece is not null)
                     {
-                        if(piece.PieceColor != this.PieceColor)
+                        if(piece.PieceColor.ToString() != this.PieceColor)
                             AvailableMoves.Add(new Vector() {Y = piece.Position.Y, X = piece.Position.X});
                     }
                 }
@@ -65,7 +66,7 @@ public class Pawn : APiece
         {
             IsLastMoveDouble = true;
             Moves = new List<Vector>();
-            if(PieceColor == EPieceColor.Black)
+            if (PieceColor == "#000000")
                 Moves.Add(new Vector(1, 0));
             else
                 Moves.Add(new Vector(-1, 0));

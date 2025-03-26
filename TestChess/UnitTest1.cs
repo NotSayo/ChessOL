@@ -15,44 +15,44 @@ public class Tests
         List<IPiece> pieces = new List<IPiece>()
         {
             // Black pieces
-            new Rook() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 0, X = 0}},
-            new Knight() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 0, X = 1}},
-            new Bishop() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 0, X = 2}},
-            new Queen() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 0, X = 3}},
-            new King() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 0, X = 4}},
-            new Bishop() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 0, X = 5}},
-            new Knight() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 0, X = 6}},
-            new Rook() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 0, X = 7}},
+            new Rook() {GameInstance = GameInstance, PieceColor = "#000000", Position = new Vector() {Y = 0, X = 0}},
+            new Knight() {GameInstance = GameInstance, PieceColor = "#000000", Position = new Vector() {Y = 0, X = 1}},
+            new Bishop() {GameInstance = GameInstance, PieceColor = "#000000", Position = new Vector() {Y = 0, X = 2}},
+            new Queen() {GameInstance = GameInstance, PieceColor = "#000000", Position = new Vector() {Y = 0, X = 3}},
+            new King() {GameInstance = GameInstance, PieceColor = "#000000", Position = new Vector() {Y = 0, X = 4}},
+            new Bishop() {GameInstance = GameInstance, PieceColor = "#000000", Position = new Vector() {Y = 0, X = 5}},
+            new Knight() {GameInstance = GameInstance, PieceColor = "#000000", Position = new Vector() {Y = 0, X = 6}},
+            new Rook() {GameInstance = GameInstance, PieceColor = "#000000", Position = new Vector() {Y = 0, X = 7}},
 
             // Black pawns
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 0}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 1}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 2}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 3}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 4}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 5}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 6}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 7}},
+            new Pawn() {GameInstance = GameInstance, PieceColor = "#000000", Position = new Vector() {Y = 1, X = 0}},
+            new Pawn() {GameInstance = GameInstance, PieceColor = "#000000", Position = new Vector() {Y = 1, X = 1}},
+            new Pawn() {GameInstance = GameInstance, PieceColor = "#000000", Position = new Vector() {Y = 1, X = 2}},
+            new Pawn() {GameInstance = GameInstance, PieceColor = "#000000", Position = new Vector() {Y = 1, X = 3}},
+            new Pawn() {GameInstance = GameInstance, PieceColor = "#000000", Position = new Vector() {Y = 1, X = 4}},
+            new Pawn() {GameInstance = GameInstance, PieceColor = "#000000", Position = new Vector() {Y = 1, X = 5}},
+            new Pawn() {GameInstance = GameInstance, PieceColor = "#000000", Position = new Vector() {Y = 1, X = 6}},
+            new Pawn() {GameInstance = GameInstance, PieceColor = "#000000", Position = new Vector() {Y = 1, X = 7}},
 
             // White pawns
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 0}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 1}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 2}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 3}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 4}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 5}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 6}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 7}},
+            new Pawn() {GameInstance = GameInstance, PieceColor = "#FFFFFF", Position = new Vector() {Y = 6, X = 0}},
+            new Pawn() {GameInstance = GameInstance, PieceColor = "#FFFFFF", Position = new Vector() {Y = 6, X = 1}},
+            new Pawn() {GameInstance = GameInstance, PieceColor = "#FFFFFF", Position = new Vector() {Y = 6, X = 2}},
+            new Pawn() {GameInstance = GameInstance, PieceColor = "#FFFFFF", Position = new Vector() {Y = 6, X = 3}},
+            new Pawn() {GameInstance = GameInstance, PieceColor = "#FFFFFF", Position = new Vector() {Y = 6, X = 4}},
+            new Pawn() {GameInstance = GameInstance, PieceColor = "#FFFFFF", Position = new Vector() {Y = 6, X = 5}},
+            new Pawn() {GameInstance = GameInstance, PieceColor = "#FFFFFF", Position = new Vector() {Y = 6, X = 6}},
+            new Pawn() {GameInstance = GameInstance, PieceColor = "#FFFFFF", Position = new Vector() {Y = 6, X = 7}},
 
             // White pieces
-            new Rook() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 7, X = 0}},
-            new Knight() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 7, X = 1}},
-            new Bishop() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 7, X = 2}},
-            new Queen() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 7, X = 3}},
-            new King() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 7, X = 4}},
-            new Bishop() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 7, X = 5}},
-            new Knight() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 7, X = 6}},
-            new Rook() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 7, X = 7}},
+            new Rook() {GameInstance = GameInstance, PieceColor = "#FFFFFF", Position = new Vector() {Y = 7, X = 0}},
+            new Knight() {GameInstance = GameInstance, PieceColor = "#FFFFFF", Position = new Vector() {Y = 7, X = 1}},
+            new Bishop() {GameInstance = GameInstance, PieceColor = "#FFFFFF", Position = new Vector() {Y = 7, X = 2}},
+            new Queen() {GameInstance = GameInstance, PieceColor = "#FFFFFF", Position = new Vector() {Y = 7, X = 3}},
+            new King() {GameInstance = GameInstance, PieceColor = "#FFFFFF", Position = new Vector() {Y = 7, X = 4}},
+            new Bishop() {GameInstance = GameInstance, PieceColor = "#FFFFFF", Position = new Vector() {Y = 7, X = 5}},
+            new Knight() {GameInstance = GameInstance, PieceColor = "#FFFFFF", Position = new Vector() {Y = 7, X = 6}},
+            new Rook() {GameInstance = GameInstance, PieceColor = "#FFFFFF", Position = new Vector() {Y = 7, X = 7}},
         };
 
         foreach (var piece in pieces)
@@ -112,18 +112,18 @@ public class Tests
     {
         return (piece.PieceColor, piece) switch
         {
-            (EPieceColor.Black, Pawn) => '♙',
-            (EPieceColor.Black, Rook) => '♖',
-            (EPieceColor.Black, Knight) => '♘',
-            (EPieceColor.Black, Bishop) => '♗',
-            (EPieceColor.Black, Queen) => '♕',
-            (EPieceColor.Black, King) => '♔',
-            (EPieceColor.White, Pawn) => '♟',
-            (EPieceColor.White, Rook) => '♜',
-            (EPieceColor.White, Knight) => '♞',
-            (EPieceColor.White, Bishop) => '♝',
-            (EPieceColor.White, Queen) => '♛',
-            (EPieceColor.White, King) => '♚',
+            ("#000000", Pawn) => '♙',
+            ("#000000", Rook) => '♖',
+            ("#000000", Knight) => '♘',
+            ("#000000", Bishop) => '♗',
+            ("#000000", Queen) => '♕',
+            ("#000000", King) => '♔',
+            ("#FFFFFF", Pawn) => '♟',
+            ("#FFFFFF", Rook) => '♜',
+            ("#FFFFFF", Knight) => '♞',
+            ("#FFFFFF", Bishop) => '♝',
+            ("#FFFFFF", Queen) => '♛',
+            ("#FFFFFF", King) => '♚',
             _ => '?'
         };
     }
@@ -171,7 +171,7 @@ public class Tests
     [Test]
     public void PawnAvailableMoves()
     {
-        var whitePawn = new Pawn { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 6, X = 3 } };
+        var whitePawn = new Pawn { GameInstance = GameInstance, PieceColor = "#FFFFFF", Position = new Vector { Y = 6, X = 3 } };
         GameInstance.Board[6, 3] = whitePawn;
 
         whitePawn.CheckAvailableMoves();
@@ -184,7 +184,7 @@ public class Tests
     [Test]
     public void KnightAvailableMoves()
     {
-        var whiteKnight = new Knight { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 4, X = 4 } };
+        var whiteKnight = new Knight { GameInstance = GameInstance, PieceColor = "#FFFFFF", Position = new Vector { Y = 4, X = 4 } };
         GameInstance.Board[4, 4] = whiteKnight;
         whiteKnight.AvailableMoves.ForEach(s => Console.WriteLine(s));
 
@@ -208,14 +208,14 @@ public class Tests
         GameInstance.Board = new IPiece[8, 8];
         GameInstance.Pieces = new List<IPiece>()
         {
-            new King() { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 0, X = 2 } },
-            new Rook() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 7, X = 3 } },
-            new Rook() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() { Y = 0, X = 7 } },
+            new King() { GameInstance = GameInstance, PieceColor = "#FFFFFF", Position = new Vector { Y = 0, X = 2 } },
+            new Rook() {GameInstance = GameInstance, PieceColor = "#000000", Position = new Vector { Y = 7, X = 3 } },
+            new Rook() {GameInstance = GameInstance, PieceColor = "#000000", Position = new Vector() { Y = 0, X = 7 } },
         };
         GameInstance.Pieces.ForEach(p => GameInstance.Board[p.Position.Y, p.Position.X] = p);
         DisplayPieces();
         GameInstance.Pieces.ForEach(p => p.CheckAvailableMoves());
-        var King = GameInstance.Pieces.OfType<King>().First(p => p.PieceColor == EPieceColor.White);
+        var King = GameInstance.Pieces.OfType<King>().First(p => p.PieceColor == "#FFFFFF");
         King.AvailableMoves.ForEach(v => Console.WriteLine("Move: " + v));
         King.CheckAvailableMoves();
         Console.WriteLine(King.AvailableMoves.Count);
