@@ -16,5 +16,5 @@ public class Knight : APiece
         new (1, -2),
     };
 
-    public override bool Repetetive { get; set; } = false;
+    public override bool Repetitive { get; set; } = false;
 }

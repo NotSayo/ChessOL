@@ -9,7 +9,7 @@ public abstract class APiece : IPiece
     public EPieceColor PieceColor { get; set; }
     public Vector Position { get; set; }
     public abstract List<Vector> Moves { get; set; }
-    public abstract bool Repetetive { get; set; }
+    public abstract bool Repetitive { get; set; }
     public List<Vector> AvailableMoves { get; set; } = new();
     public virtual void CheckAvailableMoves()
     {
@@ -23,7 +23,7 @@ public abstract class APiece : IPiece
                 int changeY = vec.Y > 0 ? 1 : -1;
                 do
                 {
-                    Console.WriteLine((Position.Y + vec.Y + increaseY) + " " + (Position.X + vec.X + increaseX));
+                    // Console.WriteLine((Position.Y + vec.Y + increaseY) + " " + (Position.X + vec.X + increaseX));
                     if(GameInstance.Board[Position.Y + vec.Y + increaseY, Position.X + vec.X + increaseX] is null)
                     {
                         var newPosition = new Vector(Position.Y + vec.Y + increaseY, Position.X + vec.X + increaseX);
@@ -44,7 +44,7 @@ public abstract class APiece : IPiece
                         }
                         break;
                     }
-                } while (Repetetive);
+                } while (Repetitive);
             }
             catch (IndexOutOfRangeException e)
             {
@@ -52,7 +52,7 @@ public abstract class APiece : IPiece
         }
     }
 
-    public void Move()
+    public virtual void Move()
     {
         throw new NotImplementedException();
     }

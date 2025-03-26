@@ -13,5 +13,5 @@ public class Rook : APiece
         new (0,-1)
     };
 
-    public override bool Repetetive { get; set; } = true;
+    public override bool Repetitive { get; set; } = true;
 }

@@ -9,7 +9,7 @@ public interface IPiece
     public EPieceColor PieceColor { get; set; }
     public Vector Position { get; set; }
     public List<Vector> Moves { get; set; }
-    public bool Repetetive { get; set; }
+    public bool Repetitive { get; set; }
     public List<Vector> AvailableMoves { get; set; }
 
     public void CheckAvailableMoves();
