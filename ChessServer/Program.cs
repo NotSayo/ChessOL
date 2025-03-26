@@ -9,73 +9,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using MudBlazor;
 using Shared.Chess.GameManager;
 using Shared.Chess.Pieces;
 using Shared.Identity.Entities;
 using Shared.Types;
-
-
-GameInstance instance = new GameInstance();
-
-
-IPiece r = new Knight()
-{
-    GameInstance = instance,
-    PieceColor = "#FFFFFF",
-    Position = new Vector(3,4),
-};
-IPiece rook = new Pawn() //TODO adjust pawn movement and taking sideways
-{
-    GameInstance = instance,
-    PieceColor = "#000000",
-    Position = new Vector(4, 4)
-};
-
-IPiece otherRook = new Rook()
-{
-    GameInstance = instance, PieceColor = "#FFFFFF",
-    Position = new Vector(4, 6)
-};
-var checkArray = new string[8, 8];
-instance.Board[r.Position.Y, r.Position.X] = r;
-instance.Board[rook.Position.Y, rook.Position.X] = rook;
-instance.Board[otherRook.Position.Y, otherRook.Position.X] = otherRook;
-rook.CheckAvailableMoves();
-Console.WriteLine($"Starting Position: ({rook.Position.Y}, {rook.Position.X})");
-rook.AvailableMoves.ForEach(s => checkArray[s.Y, s.X] = "X");
-checkArray[rook.Position.Y, rook.Position.X] = "R";
-
-
-for (int i = 0; i < 8; i++)
-{
-    for (int j = 0; j < 8; j++)
-    {
-        if (checkArray[i, j] is not null)
-        {
-            Console.BackgroundColor = ConsoleColor.Green;
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.Write(checkArray[i, j]);
-        }
-        else
-        {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.Write("I");
-        }
-
-
-    }
-    Console.WriteLine();
-}
-
-
-
-
-
-
-
-
 
 
 var builder = WebApplication.CreateBuilder(args);
