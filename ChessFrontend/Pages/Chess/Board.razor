@@ -6,9 +6,8 @@
 {
     <MudDropContainer T="IPiece" Items="_gameInstance.Pieces" CanDropClass="mud-border-info" NoDropClass="mud-border-error" 
                       CanDrop="CanDrop" 
-                      ItemsSelector="@((item,dropzone) => item.Identifier == dropzone)" 
-                      ItemDropped="ItemUpdated" Class="border-2 border-solid mud-border-lines-default"
-                      Style="background-color: #258cfb">
+                      ItemsSelector="@((item, dropzone) => item.Position.ToStringIdentifier() == dropzone)" 
+                      ItemDropped="ItemUpdated" Class="border-2 border-solid mud-border-lines-default">
         <ChildContent>
             @for(int i = 0; i < 8; i++)
             {
@@ -17,22 +16,21 @@
                     @for (int j = 0; j < 8; j++)
                     {
                         var col = j.ToString();
-                        <MudDropZone T="IPiece" Identifier="@(($"{row}{col}"))" DraggingClass="mud-theme-success" 
+                        var bg = (i + j) % 2 == 1 ? "background-color:grey;" : "background-color:brown;";
+                        var style = bg + "height: 64px; width: 64px;";
+                            <MudDropZone T="IPiece" Identifier="@(($"{row}{col}"))" DraggingClass="mud-theme-success" 
                                      Class="d-flex justify-center align-center border-2 border-solid docs-gray-bg mud-border-lines-default" 
-                                     Style="height:64px;width:64px;"/>
+                                     Style="@style"/>
                     }
                 </div>
             }
         </ChildContent>
         <ItemRenderer>
             <div class="d-flex justify-center align-center flex-grow-1">
-                @if (context.PieceColor == "#FFFFFF")
+                @if (true)
                 {
-                    <MudIcon Icon="@context.Icon" Size="Size.Large" Style="color: #FFFFFF"/>
-                }
-                else
-                {
-                    <MudIcon Icon="@context.Icon" Size="Size.Large" Style="color: #000000"/>
+                    var color = context.PieceColor == EPieceColor.White ? "color: #FFFFFF;" : "color: #000000;";
+                    <MudIcon Icon="@context.Icon" Size="Size.Large" Style="@color"/>
                 }
             </div>
         </ItemRenderer>
@@ -46,8 +44,6 @@ else
 @code {
     private void ItemUpdated(MudItemDropInfo<IPiece> dropItem)
     {
-        dropItem.Item.Identifier = dropItem.DropzoneIdentifier;
-
         Console.WriteLine($"Dropzone Coords: {dropItem.DropzoneIdentifier[0]} - {dropItem.DropzoneIdentifier[1]}");
 
         var row = Convert.ToByte(dropItem.DropzoneIdentifier[0].ToString());

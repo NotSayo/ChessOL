@@ -7,6 +7,7 @@ public abstract class APiece : IPiece
 {
     public GameInstance GameInstance { get; set; }
     public EPieceColor PieceColor { get; set; }
+    public string Icon { get; set; }
     public Vector Position { get; set; }
     public abstract List<Vector> Moves { get; set; }
     public abstract bool Repetitive { get; set; }

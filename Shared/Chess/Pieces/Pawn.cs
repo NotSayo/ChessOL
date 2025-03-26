@@ -13,13 +13,13 @@ public class Pawn : APiece
 
     public Pawn()
     {
-        if (PieceColor == "#000000")
+        if (PieceColor == EPieceColor.White)
         {
-            Moves.Add(new Vector(1, 0));
+            Moves.Add(new Vector(0, 1));
         }
         else
         {
-            Moves.Add(new Vector(-1, 0));
+            Moves.Add(new Vector(0, -1));
         }
     }
 
@@ -47,7 +47,7 @@ public class Pawn : APiece
                 {
                     if (piece is not null)
                     {
-                        if(piece.PieceColor.ToString() != this.PieceColor)
+                        if(piece.PieceColor != this.PieceColor)
                             AvailableMoves.Add(new Vector() {Y = piece.Position.Y, X = piece.Position.X});
                     }
                 }
@@ -66,7 +66,7 @@ public class Pawn : APiece
         {
             IsLastMoveDouble = true;
             Moves = new List<Vector>();
-            if (PieceColor == "#000000")
+            if (PieceColor == EPieceColor.Black)
                 Moves.Add(new Vector(1, 0));
             else
                 Moves.Add(new Vector(-1, 0));

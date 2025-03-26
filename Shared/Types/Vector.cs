@@ -40,4 +40,9 @@ public struct Vector : IEquatable<Vector>
     {
         return "(" + Y + ", " + X + ")";
     }
+
+    public string ToStringIdentifier()
+    {
+        return $"{X}{Y}";
+    }
 }
