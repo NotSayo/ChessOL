@@ -203,91 +203,205 @@ public class Tests
     }
 
     [Test]
-    public void CheckKingMoves()
+    public void CheckKingMoves1()
     {
         GameInstance.Board = new IPiece[8, 8];
+        var queen = new Queen()
+            { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() { Y = 2, X = 4 } };
         GameInstance.Pieces = new List<IPiece>()
         {
             new King() { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 0, X = 2 } },
+            new King() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 7, X = 2 } },
             new Rook() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 7, X = 3 } },
             new Rook() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() { Y = 0, X = 7 } },
+            new Rook() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() { Y = 0, X = 1 } },
+            queen
         };
         GameInstance.Pieces.ForEach(p => GameInstance.Board[p.Position.Y, p.Position.X] = p);
         DisplayPieces();
         GameInstance.Pieces.ForEach(p => p.CheckAvailableMoves());
-        var King = GameInstance.Pieces.OfType<King>().First(p => p.PieceColor == EPieceColor.White);
-        King.AvailableMoves.ForEach(v => Console.WriteLine("Move: " + v));
-        King.CheckAvailableMoves();
-        Console.WriteLine(King.AvailableMoves.Count);
+        var king = GameInstance.Pieces.OfType<King>().First(p => p.PieceColor == EPieceColor.White);
+        king.CheckAvailableMoves();
+        king.AvailableMoves.ForEach(v => Console.WriteLine("Move: " + v));
+        Console.WriteLine("King Moves:" + king.AvailableMoves.Count);
+        Console.WriteLine("Queen Moves:" + queen.AvailableMoves.Count);
+        queen.AvailableMoves.ForEach(s => Console.WriteLine("Rook Move:" + s));
+        Assert.That(king.AvailableMoves.Count, Is.EqualTo(1));
+        Assert.That(king.AvailableMoves.Contains(new Vector(){Y=1,X=2}));
         Assert.Pass();
     }
 
-    // [Test]
-    // public void BishopAvailableMoves()
-    // {
-    //     GameInstance.ClearBoard();
-    //     var whiteBishop = new Bishop { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 4, X = 4 } };
-    //     GameInstance.Board[4, 4] = whiteBishop;
-    //
-    //     whiteBishop.CheckAvailableMoves();
-    //
-    //     Assert.That(whiteBishop.AvailableMoves.Count, Is.EqualTo(13));
-    //     // Check for some expected diagonal moves
-    //     Assert.That(whiteBishop.AvailableMoves, Does.Contain(new Vector { Y = 3, X = 3 }));
-    //     Assert.That(whiteBishop.AvailableMoves, Does.Contain(new Vector { Y = 5, X = 5 }));
-    //     Assert.That(whiteBishop.AvailableMoves, Does.Contain(new Vector { Y = 3, X = 5 }));
-    //     Assert.That(whiteBishop.AvailableMoves, Does.Contain(new Vector { Y = 5, X = 3 }));
-    // }
+    [Test]
+    public void CheckKingMoves2()
+    {
+        GameInstance.Board = new IPiece[8, 8];
+        GameInstance.Pieces = new List<IPiece>()
+        {
+            new King() { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 4, X = 4 } },
+            new King() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 7, X = 2 } },
+            new Rook() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() { Y = 3,X = 3}},
+            new Bishop() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() { Y = 7,X = 7}},
+        };
+        GameInstance.Pieces.ForEach(p => GameInstance.Board[p.Position.Y, p.Position.X] = p);
+        DisplayPieces();
+        GameInstance.Pieces.ForEach(p => p.CheckAvailableMoves());
+        var king = GameInstance.Pieces.OfType<King>().First(p => p.PieceColor == EPieceColor.White);
+        king.CheckAvailableMoves();
+        king.AvailableMoves.ForEach(v => Console.WriteLine("Move: " + v));
+        Console.WriteLine("King Moves:" + king.AvailableMoves.Count);
+        Assert.That(king.AvailableMoves.Count, Is.EqualTo(2));
+        Assert.That(king.AvailableMoves.Contains(new Vector(){Y = 4, X = 5}));
+        Assert.That(king.AvailableMoves.Contains(new Vector(){Y = 5, X = 4}));
+        Assert.Pass();
+    }
 
-    // [Test]
-    // public void RookAvailableMoves()
-    // {
-    //     GameInstance.ClearBoard();
-    //     var whiteRook = new Rook { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 4, X = 4 } };
-    //     GameInstance.Board[4, 4] = whiteRook;
-    //
-    //     whiteRook.CheckAvailableMoves();
-    //
-    //     Assert.That(whiteRook.AvailableMoves.Count, Is.EqualTo(14));
-    //     // Check for some expected horizontal and vertical moves
-    //     Assert.That(whiteRook.AvailableMoves, Does.Contain(new Vector { Y = 4, X = 0 }));
-    //     Assert.That(whiteRook.AvailableMoves, Does.Contain(new Vector { Y = 4, X = 7 }));
-    //     Assert.That(whiteRook.AvailableMoves, Does.Contain(new Vector { Y = 0, X = 4 }));
-    //     Assert.That(whiteRook.AvailableMoves, Does.Contain(new Vector { Y = 7, X = 4 }));
-    // }
+    [Test]
+    public void KingAtEdgeNoThreats()
+    {
+        GameInstance.Board = new IPiece[8, 8];
+        GameInstance.Pieces = new List<IPiece>()
+        {
+            new King() { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 0, X = 0 } },
+            new King() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 7, X = 7 } },
+        };
+        GameInstance.Pieces.ForEach(p => GameInstance.Board[p.Position.Y, p.Position.X] = p);
+        GameInstance.Pieces.ForEach(p => p.CheckAvailableMoves());
 
-    // [Test]
-    // public void PieceIsTakeable()
-    // {
-    //     GameInstance.ClearBoard();
-    //     var whitePawn = new Pawn { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 4, X = 3 } };
-    //     var blackPawn = new Pawn { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 5, X = 2 } };
-    //     GameInstance.Board[4, 3] = whitePawn;
-    //     GameInstance.Board[5, 2] = blackPawn;
-    //
-    //     blackPawn.CheckAvailableMoves();
-    //
-    //     Assert.That(blackPawn.AvailableMoves, Does.Contain(new Vector { Y = 4, X = 3 }));
-    // }
+        var king = GameInstance.Pieces.OfType<King>().First(p => p.PieceColor == EPieceColor.White);
+        Assert.That(king.AvailableMoves.Count, Is.EqualTo(3));
+        Assert.That(king.AvailableMoves, Has.Exactly(1).EqualTo(new Vector(){Y = 0, X = 1}));
+        Assert.That(king.AvailableMoves, Has.Exactly(1).EqualTo(new Vector(){Y = 1, X = 0}));
+        Assert.That(king.AvailableMoves, Has.Exactly(1).EqualTo(new Vector(){Y = 1, X = 1}));
+    }
 
-    // [Test]
-    // public void KingAvailableMovesInCheck()
-    // {
-    //     GameInstance.ClearBoard();
-    //     var whiteKing = new King { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 7, X = 4 } };
-    //     var blackQueen = new Queen { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 6, X = 4 } };
-    //
-    //     GameInstance.Board[7, 4] = whiteKing;
-    //     GameInstance.Board[6, 4] = blackQueen;
-    //
-    //     whiteKing.CheckAvailableMoves();
-    //
-    //     Assert.That(whiteKing.AvailableMoves.Count, Is.EqualTo(5));
-    //     Assert.That(whiteKing.AvailableMoves, Does.Contain(new Vector { Y = 7, X = 3 }));
-    //     Assert.That(whiteKing.AvailableMoves, Does.Contain(new Vector { Y = 7, X = 5 }));
-    //     Assert.That(whiteKing.AvailableMoves, Does.Contain(new Vector { Y = 6, X = 3 }));
-    //     Assert.That(whiteKing.AvailableMoves, Does.Contain(new Vector { Y = 6, X = 5 }));
-    //     Assert.That(whiteKing.AvailableMoves, Does.Contain(new Vector { Y = 6, X = 4 })); // Can take the queen
-    // }
+    [Test]
+    public void KingSurroundedByFriendlyPieces()
+    {
+        GameInstance.Board = new IPiece[8, 8];
+        var kingPosition = new Vector { Y = 3, X = 3 };
+
+        var friendlyPositions = new List<Vector>
+        {
+            new Vector{Y=2, X=2}, new Vector{Y=2, X=3}, new Vector{Y=2, X=4},
+            new Vector{Y=3, X=2}, /* King */         new Vector{Y=3, X=4},
+            new Vector{Y=4, X=2}, new Vector{Y=4, X=3}, new Vector{Y=4, X=4}
+        };
+
+        GameInstance.Pieces = new List<IPiece>
+        {
+            new King() { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = kingPosition },
+            new King() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 7, X = 7 } }
+        };
+
+        GameInstance.Pieces.AddRange(friendlyPositions.Select(pos =>
+            new Rook() { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = pos }));
+
+        GameInstance.Pieces.ForEach(p => GameInstance.Board[p.Position.Y, p.Position.X] = p);
+        GameInstance.Pieces.ForEach(p => p.CheckAvailableMoves());
+
+        var king = GameInstance.Pieces.OfType<King>().First(p => p.PieceColor == EPieceColor.White);
+        DisplayPieces();
+        king.AvailableMoves.ForEach(s => Console.WriteLine(s));
+        Assert.That(king.AvailableMoves.Count, Is.EqualTo(0));
+    }
+
+    [Test]
+    public void KingCanCaptureEnemyPiece()
+    {
+        GameInstance.Board = new IPiece[8, 8];
+        GameInstance.Pieces = new List<IPiece>()
+        {
+            new King() { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 3, X = 3 } },
+            new King() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 7, X = 7 } },
+            new Bishop() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 2, X = 2 } },
+        };
+
+        GameInstance.Pieces.ForEach(p => GameInstance.Board[p.Position.Y, p.Position.X] = p);
+        GameInstance.Pieces.ForEach(p => p.CheckAvailableMoves());
+
+        var king = GameInstance.Pieces.OfType<King>().First(p => p.PieceColor == EPieceColor.White);
+        Assert.That(king.AvailableMoves, Does.Contain(new Vector() { Y = 2, X = 2 }));
+    }
+
+    [Test]
+    public void KingAvoidsMovingIntoCheck()
+    {
+        GameInstance.Board = new IPiece[8, 8];
+        GameInstance.Pieces = new List<IPiece>()
+        {
+            new King() { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 4, X = 4 } },
+            new King() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 7, X = 7 } },
+            new Rook() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 4, X = 6 } },
+        };
+
+        GameInstance.Pieces.ForEach(p => GameInstance.Board[p.Position.Y, p.Position.X] = p);
+        GameInstance.Pieces.ForEach(p => p.CheckAvailableMoves());
+
+        var king = GameInstance.Pieces.OfType<King>().First(p => p.PieceColor == EPieceColor.White);
+
+        // (4,5) is on the Rook’s line of attack and should be avoided
+        Assert.That(king.AvailableMoves, Does.Not.Contain(new Vector(){Y = 4, X = 5}));
+    }
+
+    [Test]
+    public void KingCannotMoveNextToEnemyKing()
+    {
+        GameInstance.Board = new IPiece[8, 8];
+        GameInstance.Pieces = new List<IPiece>()
+        {
+            new King() { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 4, X = 4 } },
+            new King() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 5, X = 5 } },
+        };
+        GameInstance.Pieces.ForEach(p => GameInstance.Board[p.Position.Y, p.Position.X] = p);
+        GameInstance.Pieces.ForEach(p => p.CheckAvailableMoves());
+
+        var whiteKing = GameInstance.Pieces.OfType<King>().First(p => p.PieceColor == EPieceColor.White);
+
+        // White king must not be allowed to move adjacent to black king (e.g., 5,5 already occupied)
+        Assert.That(whiteKing.AvailableMoves, Does.Not.Contain(new Vector { Y = 5, X = 5 }));
+        Assert.That(whiteKing.AvailableMoves, Does.Not.Contain(new Vector { Y = 5, X = 4 }));
+        Assert.That(whiteKing.AvailableMoves, Does.Not.Contain(new Vector { Y = 4, X = 5 }));
+    }
+
+    [Test]
+    public void KingMustBlockCheckOnlyOneMove()
+    {
+        GameInstance.Board = new IPiece[8, 8];
+        GameInstance.Pieces = new List<IPiece>()
+        {
+            new King() { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 0, X = 4 } },
+            new King() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 7, X = 7 } },
+            new Rook() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 0, X = 7 } }, // checking along row
+        };
+        GameInstance.Pieces.ForEach(p => GameInstance.Board[p.Position.Y, p.Position.X] = p);
+        GameInstance.Pieces.ForEach(p => p.CheckAvailableMoves());
+
+        var whiteKing = GameInstance.Pieces.OfType<King>().First(p => p.PieceColor == EPieceColor.White);
+
+        Assert.That(whiteKing.AvailableMoves.Count, Is.EqualTo(1));
+        Assert.That(whiteKing.AvailableMoves, Does.Contain(new Vector { Y = 0, X = 5 }));
+    }
+
+    [Test]
+    public void KingIsCheckmated()
+    {
+        GameInstance.Board = new IPiece[8, 8];
+        GameInstance.Pieces = new List<IPiece>()
+        {
+            new King() { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 0, X = 0 } },
+            new King() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 7, X = 7 } },
+            new Queen() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 0, X = 1 } },
+            new Queen() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 1, X = 0 } },
+        };
+        GameInstance.Pieces.ForEach(p => GameInstance.Board[p.Position.Y, p.Position.X] = p);
+        GameInstance.Pieces.ForEach(p => p.CheckAvailableMoves());
+        GameInstance.Pieces.ForEach(p => p.CheckVisibleFields());
+
+        var whiteKing = GameInstance.Pieces.OfType<King>().First(p => p.PieceColor == EPieceColor.White);
+        DisplayPieces();
+
+        // All escape squares are covered, it's a checkmate
+        Assert.That(whiteKing.AvailableMoves.Count, Is.EqualTo(0));
+    }
 
 }

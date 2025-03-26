@@ -11,8 +11,17 @@ public abstract class APiece : IPiece
     public abstract List<Vector> Moves { get; set; }
     public abstract bool Repetitive { get; set; }
     public List<Vector> AvailableMoves { get; set; } = new();
+    public List<Vector> VisibleFields { get; set; } = new();
     public virtual void CheckAvailableMoves()
     {
+        CheckVisibleFields();
+        var king = GameInstance.Pieces.OfType<King>().First(e => e.PieceColor == this.PieceColor);
+        if (king.IsInCheck)
+        {
+            return;
+        }
+        AvailableMoves = new List<Vector>();
+
         foreach (var vec in Moves)
         {
             try
@@ -42,6 +51,50 @@ public abstract class APiece : IPiece
                         {
                             AvailableMoves.Add(new Vector(Position.Y + vec.Y + increaseY, Position.X + vec.X + increaseX));
                         }
+                        break;
+                    }
+                } while (Repetitive);
+            }
+            catch (IndexOutOfRangeException e)
+            {
+            }
+        }
+    }
+
+    public virtual void CheckVisibleFields()
+    {
+        var king = GameInstance.Pieces.OfType<King>().First(e => e.PieceColor == this.PieceColor);
+        if (king.IsInCheck)
+        {
+            return;
+        }
+        VisibleFields = new List<Vector>();
+
+        foreach (var vec in Moves)
+        {
+            try
+            {
+                int increaseX = 0;
+                int increaseY = 0;
+                int changeX = vec.X > 0 ? 1 : -1;
+                int changeY = vec.Y > 0 ? 1 : -1;
+                do
+                {
+                    if(GameInstance.Board[Position.Y + vec.Y + increaseY, Position.X + vec.X + increaseX] is null)
+                    {
+                        var newPosition = new Vector(Position.Y + vec.Y + increaseY, Position.X + vec.X + increaseX);
+                        if(newPosition != Position)
+                            VisibleFields.Add(newPosition);
+
+                        if (vec.Y != 0)
+                            increaseY += changeY;
+                        if (vec.X != 0)
+                            increaseX += changeX;
+                        if (vec == new Vector(0, 0)) break;
+                    }
+                    else
+                    {
+                        VisibleFields.Add(new Vector(Position.Y + vec.Y + increaseY, Position.X + vec.X + increaseX));
                         break;
                     }
                 } while (Repetitive);
