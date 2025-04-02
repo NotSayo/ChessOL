@@ -16,10 +16,13 @@ public abstract class APiece : IPiece
     public virtual void CheckAvailableMoves()
     {
         CheckVisibleFields();
-        var king = GameInstance.Pieces.OfType<King>().First(e => e.PieceColor == this.PieceColor);
-        if (king.IsInCheck)
+        var king = GameInstance.Pieces.OfType<King>().FirstOrDefault(e => e.PieceColor == this.PieceColor);
+        if (king is not null)
         {
-            return;
+            if (king.IsInCheck)
+            {
+                return;
+            }
         }
         AvailableMoves = new List<Vector>();
 
@@ -64,10 +67,13 @@ public abstract class APiece : IPiece
 
     public virtual void CheckVisibleFields()
     {
-        var king = GameInstance.Pieces.OfType<King>().First(e => e.PieceColor == this.PieceColor);
-        if (king.IsInCheck)
+        var king = GameInstance.Pieces.OfType<King>().FirstOrDefault(e => e.PieceColor == this.PieceColor);
+        if (king is not null)
         {
-            return;
+            if (king.IsInCheck)
+            {
+                return;
+            }
         }
         VisibleFields = new List<Vector>();
 

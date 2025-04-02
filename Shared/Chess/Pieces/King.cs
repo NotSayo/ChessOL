@@ -25,6 +25,8 @@ public class King : APiece
 
     public override void CheckAvailableMoves()
     {
+        _checkingFields = new List<Vector>();
+        AvailableMoves = new List<Vector>();
         GameInstance.Pieces.Where(p => p.GetType() != this.GetType()).ToList().ForEach(p => p.CheckAvailableMoves());
         if (GameInstance.Pieces.Where(p => p.PieceColor != this.PieceColor)
             .Any(p => p.AvailableMoves.Any(m => m.Y == this.Position.Y && m.X == this.Position.X)))
@@ -122,6 +124,7 @@ public class King : APiece
                         {
                             rightLine = false;
                             _checkingFields.AddRange(currentMoves);
+                            _checkingFields = _checkingFields.Distinct().ToList();
                             currentMoves = new();
                         }
                     }
@@ -138,6 +141,25 @@ public class King : APiece
                 {
                     if (piece.AvailableMoves.Any(m => m.Y == vec.Y && m.X == vec.X))
                         newMoves.AddRange(piece.AvailableMoves.Where(m => m.Y == vec.Y && m.X == vec.X));
+                }
+
+                if (piece is Pawn p)
+                {
+                    var move = p.Moves.First(v => v.Y == 1 || v.Y == -1);
+                    if(p.Position.Y + move.Y < 0 || p.Position.Y + move.Y > 7 ||
+                       p.Position.X + move.X - 1 < 0 || p.Position.X + move.X - 1 > 7) {}
+                    else if (GameInstance.Board[p.Position.Y + move.Y, p.Position.X + move.X - 1] is not null)
+                    {
+                        if (GameInstance.Board[p.Position.Y + move.Y, p.Position.X + move.X - 1]!.PieceColor != this.PieceColor)
+                            newMoves.Add(new Vector() {Y = p.Position.Y + move.Y, X = p.Position.X + move.X - 1 });
+                    }
+                    if(p.Position.Y + move.Y < 0 || p.Position.Y + move.Y > 7 ||
+                       p.Position.X + move.X + 1 < 0 || p.Position.X + move.X + 1 > 7) {}
+                    else if (GameInstance.Board[p.Position.Y + move.Y, p.Position.X + move.X + 1] is not null)
+                    {
+                        if (GameInstance.Board[p.Position.Y + move.Y, p.Position.X + move.X + 1]!.PieceColor != this.PieceColor)
+                            newMoves.Add(new Vector() {Y = p.Position.Y + move.Y, X = p.Position.X + move.X + 1 });
+                    }
                 }
                 piece.AvailableMoves = newMoves;
             }
@@ -164,8 +186,18 @@ public class King : APiece
         // _checkingFields.ForEach(s => Console.WriteLine(s));
         try
         {
-            if(_checkingFields.Any(f => f.X == x && f.Y == y))
+            var otherKingFields = GameInstance.Pieces.OfType<King>().First(p => p.PieceColor != this.PieceColor)
+                .GetTheoreticalMoves();
+            if (_checkingFields.Any(f => f.X == x && f.Y == y))
+            {
+                var field = _checkingFields.First(f => f.X == x && f.Y == y);
+                if (GameInstance.Board[field.Y, field.X] is null)
+                    return false;
+
+            }
+            if(otherKingFields.Any(f => f.X == x && f.Y == y))
                 return false;
+
             if (GameInstance.Board[y, x] is not null)
             {
                 var piece = GameInstance.Board[y, x];
@@ -181,9 +213,7 @@ public class King : APiece
                 return false;
             }
             if (!IsSquareUnderAttack(y,x, this.PieceColor == EPieceColor.Black ? EPieceColor.White : EPieceColor.Black))
-            {
                 return true;
-            }
 
             return false;
         }
@@ -199,6 +229,17 @@ public class King : APiece
             .Where(p => p.PieceColor == byColor)
             .SelectMany(p => p.VisibleFields)
             .Any(f => f.Y == y && f.X == x);
+    }
+
+    public List<Vector> GetTheoreticalMoves()
+    {
+        var theoreticalMoves = new List<Vector>();
+        foreach (var vec in Moves)
+        {
+            theoreticalMoves.Add(new Vector(Position.Y + vec.Y, Position.X + vec.X));
+        }
+        theoreticalMoves.Add(new (Position.Y, Position.X));
+        return theoreticalMoves;
     }
 
 }

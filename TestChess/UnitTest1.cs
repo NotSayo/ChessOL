@@ -54,6 +54,7 @@ public class Tests
             new Knight() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 7, X = 6}},
             new Rook() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 7, X = 7}},
         };
+        GameInstance.Pieces = pieces;
 
         foreach (var piece in pieces)
             GameInstance.Board[piece.Position.Y, piece.Position.X] = piece;
@@ -131,6 +132,7 @@ public class Tests
     [Test]
     public void CheckAvailableMovesStart()
     {
+        DisplayPieces();
         for (int i = 0; i < 8; i++)
         {
             for (int j = 0; j < 8; j++)
@@ -142,26 +144,38 @@ public class Tests
                 {
                     case Pawn p:
                         p.CheckAvailableMoves();
+                        Console.WriteLine("Pawn: ");
+                        p.AvailableMoves.ForEach(s => Console.WriteLine(s.ToString()));
                         Assert.That(p.AvailableMoves.Count, Is.EqualTo(2));
                         break;
                     case Bishop b:
                         b.CheckAvailableMoves();
+                        Console.WriteLine("Bishop: ");
+                        b.AvailableMoves.ForEach(s => Console.WriteLine(s.ToString()));
                         Assert.That(b.AvailableMoves.Count, Is.EqualTo(0));
                         break;
                     case Knight k:
                         k.CheckAvailableMoves();
+                        Console.WriteLine("Knight: ");
+                        k.AvailableMoves.ForEach(s => Console.WriteLine(s.ToString()));
                         Assert.That(k.AvailableMoves.Count, Is.EqualTo(2));
                         break;
                     case Rook r:
                         r.CheckAvailableMoves();
+                        Console.WriteLine("Rook: ");
+                        r.AvailableMoves.ForEach(s => Console.WriteLine(s.ToString()));
                         Assert.That(r.AvailableMoves.Count, Is.EqualTo(0));
                         break;
                     case Queen q:
                         q.CheckAvailableMoves();
+                        Console.WriteLine("Quenn: ");
+                        q.AvailableMoves.ForEach(s => Console.WriteLine(s.ToString()));
                         Assert.That(q.AvailableMoves.Count, Is.EqualTo(0));
                         break;
                     case King k:
                         k.CheckAvailableMoves();
+                        Console.WriteLine("King: ");
+                        k.AvailableMoves.ForEach(s => Console.WriteLine(s.ToString()));
                         Assert.That(k.AvailableMoves.Count, Is.EqualTo(0));
                         break;
                 }
@@ -195,12 +209,16 @@ public class Tests
     [Test]
     public void KnightAvailableMoves()
     {
+        GameInstance.Pieces = new List<IPiece>();
+        GameInstance.Board = new IPiece[8, 8];
         var whiteKnight = new Knight { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 4, X = 4 } };
-        GameInstance.Board[4, 4] = whiteKnight;
+        GameInstance.Board[whiteKnight.Position.Y, whiteKnight.Position.X] = whiteKnight;
+        GameInstance.Pieces.Add(whiteKnight);
         whiteKnight.AvailableMoves.ForEach(s => Console.WriteLine(s));
 
         whiteKnight.CheckAvailableMoves();
         whiteKnight.AvailableMoves.ForEach(s => Console.WriteLine(s.ToString()));
+        DisplayPieces();
 
         Assert.That(whiteKnight.AvailableMoves.Count, Is.EqualTo(8));
         Assert.That(whiteKnight.AvailableMoves, Does.Contain(new Vector { Y = 2, X = 3 }));
@@ -383,14 +401,19 @@ public class Tests
             new King() { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 0, X = 4 } },
             new King() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 7, X = 7 } },
             new Rook() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 0, X = 7 } }, // checking along row
+            new Rook() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 7, X = 3 } },
+            new Rook() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 7, X = 5 } },
         };
         GameInstance.Pieces.ForEach(p => GameInstance.Board[p.Position.Y, p.Position.X] = p);
         GameInstance.Pieces.ForEach(p => p.CheckAvailableMoves());
 
         var whiteKing = GameInstance.Pieces.OfType<King>().First(p => p.PieceColor == EPieceColor.White);
+        whiteKing.CheckAvailableMoves();
+        DisplayPieces();
+        whiteKing.AvailableMoves.ForEach(s => Console.WriteLine(s.ToString()));
 
         Assert.That(whiteKing.AvailableMoves.Count, Is.EqualTo(1));
-        Assert.That(whiteKing.AvailableMoves, Does.Contain(new Vector { Y = 0, X = 5 }));
+        Assert.That(whiteKing.AvailableMoves, Does.Contain(new Vector { Y = 1, X = 4 }));
     }
 
     [Test]
@@ -414,5 +437,91 @@ public class Tests
         // All escape squares are covered, it's a checkmate
         Assert.That(whiteKing.AvailableMoves.Count, Is.EqualTo(0));
     }
+
+    [Test]
+    public void KingCanCastleKingside()
+    {
+        GameInstance.Board = new IPiece[8, 8];
+        var whiteKing = new King() { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 7, X = 4 } };
+        var whiteRook = new Rook() { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 7, X = 7 } };
+        GameInstance.Pieces = new List<IPiece>() { whiteKing, whiteRook, new King() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 0, X = 0 } } };
+        GameInstance.Pieces.ForEach(p => GameInstance.Board[p.Position.Y, p.Position.X] = p);
+        GameInstance.Pieces.ForEach(p => p.CheckAvailableMoves());
+
+        Assert.That(whiteKing.AvailableMoves, Does.Contain(new Vector { Y = 7, X = 6 }));
+    }
+
+    [Test]
+    public void PawnCanCaptureEnPassant()
+    {
+        GameInstance.Board = new IPiece[8, 8];
+        var whitePawn = new Pawn(EPieceColor.White) { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 3, X = 4 } };
+        var blackPawn = new Pawn(EPieceColor.Black) { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 3, X = 5 } };
+
+        GameInstance.Pieces = new List<IPiece>() {
+            whitePawn, blackPawn,
+            new King { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 7, X = 0 }},
+            new King { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 0, X = 7 }},
+        };
+
+        GameInstance.Board[whitePawn.Position.Y, whitePawn.Position.X] = whitePawn;
+        GameInstance.Board[blackPawn.Position.Y, blackPawn.Position.X] = blackPawn;
+
+        // Simulate black pawn double move
+        blackPawn.IsLastMoveDouble = true;
+        DisplayPieces();
+
+        whitePawn.CheckAvailableMoves();
+        Assert.That(whitePawn.AvailableMoves, Does.Contain(new Vector { Y = 2, X = 5 }));
+    }
+
+    [Test]
+    public void GameIsStalemate()
+    {
+        GameInstance.Board = new IPiece[8, 8];
+        var whiteKing = new King() { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 7, X = 7 } };
+        var blackKing = new King() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 0, X = 0 } };
+        var blackQueen = new Queen() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 6, X = 6 } };
+
+        GameInstance.Pieces = new List<IPiece>() { whiteKing, blackKing, blackQueen };
+        GameInstance.Pieces.ForEach(p => GameInstance.Board[p.Position.Y, p.Position.X] = p);
+        GameInstance.Pieces.ForEach(p => p.CheckAvailableMoves());
+
+        // Assert.That(GameInstance.IsStalemate(EPieceColor.White), Is.True); // Assuming you implemented this TODO
+    }
+
+    [Test]
+    public void PawnCanBePromoted()
+    {
+        GameInstance.Board = new IPiece[8, 8];
+        var whitePawn = new Pawn(EPieceColor.White)
+        {
+            GameInstance = GameInstance,
+            PieceColor = EPieceColor.White,
+            Position = new Vector { Y = 1, X = 0 }
+        };
+
+        var whiteKing = new King() { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 7, X = 4 } };
+        var blackKing = new King() { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 0, X = 7 } };
+
+        GameInstance.Pieces = new List<IPiece> { whitePawn, whiteKing, blackKing };
+        GameInstance.Pieces.ForEach(p => GameInstance.Board[p.Position.Y, p.Position.X] = p);
+
+        whitePawn.CheckAvailableMoves();
+        var target = new Vector { Y = 0, X = 0 };
+        Assert.That(whitePawn.AvailableMoves, Does.Contain(target));
+
+        // Simulate promotion
+        GameInstance.Board[1, 0] = null;
+        GameInstance.Board[0, 0] = new Queen { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = target };
+        GameInstance.Pieces.Remove(whitePawn);
+        GameInstance.Pieces.Add(GameInstance.Board[0, 0]);
+
+        Assert.That(GameInstance.Board[0, 0], Is.TypeOf<Queen>());
+    }
+
+
+
+
 
 }

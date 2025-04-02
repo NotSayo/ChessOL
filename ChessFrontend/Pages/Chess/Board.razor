@@ -18,7 +18,7 @@
                         var col = j.ToString();
                         var bg = (i + j) % 2 == 1 ? "background-color:grey;" : "background-color:brown;";
                         var style = bg + "height: 64px; width: 64px;";
-                        <MudDropZone T="IPiece" Identifier="@(($"{row}{col}"))" DraggingClass="mud-theme-success" 
+                        <MudDropZone T="IPiece" Identifier="@(($"{col}{row}"))" DraggingClass="mud-theme-success"
                                      Class="d-flex justify-center align-center border-2 border-solid docs-gray-bg mud-border-lines-default" 
                                      Style="@style"/>
                     }
@@ -69,24 +69,22 @@ else
             TakenPiecesWhite = new List<IPiece>()
         };
         _gameInstance.InitializeGame();
+        _gameInstance.Pieces.OfType<King>().ToList().ForEach(k => k.CheckAvailableMoves());
     }
 
     private void ItemUpdated(MudItemDropInfo<IPiece> dropItem)
     {
         Console.WriteLine($"Dropzone Coords: {dropItem.DropzoneIdentifier[0]} - {dropItem.DropzoneIdentifier[1]}");
 
-        var row = Convert.ToByte(dropItem.DropzoneIdentifier[0].ToString());
-        var col = Convert.ToByte(dropItem.DropzoneIdentifier[1].ToString());
+        var row = dropItem.DropzoneIdentifier[0].ToString();
+        var col = dropItem.DropzoneIdentifier[1].ToString();
+
 
         if (dropItem.Item != null)
         {
             _gameInstance?.RemoveFromBoard(dropItem.Item);
-            
-            dropItem.Item.Position = new()
-            {
-                X = row,
-                Y = col
-            };
+
+            dropItem.Item.Position = new() { X = int.Parse(row), Y = int.Parse(col) };
             
             if (_gameInstance?.Pieces
                 .FirstOrDefault(p => p.Position.X == dropItem.Item.Position.X && p.Position.Y == dropItem.Item.Position.Y) != default)
@@ -101,14 +99,15 @@ else
 
             Console.WriteLine($"Item Coords: {dropItem.Item.Position.X} - {dropItem.Item.Position.Y}");
         }
+        _gameInstance.Pieces.OfType<King>().ToList().ForEach(k => k.CheckAvailableMoves());
+
     }
     
     private bool CanDrop(IPiece piece, string identifier)
     {
-        if (_gameInstance != null) _gameInstance.Pieces.OfType<King>().First(p => p.PieceColor == piece.PieceColor).CheckAvailableMoves();
+        Console.WriteLine(identifier);
         piece.CheckAvailableMoves();
         return piece.AvailableMoves
             .Any(v => v.X.ToString() == identifier[0].ToString() && v.Y.ToString() == identifier[1].ToString());
     }
-}
 }
