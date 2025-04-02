@@ -25,24 +25,24 @@ public class Tests
             new Rook() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 0, X = 7}},
 
             // Black pawns
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 0}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 1}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 2}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 3}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 4}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 5}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 6}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 7}},
+            new Pawn(EPieceColor.Black) {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 0}},
+            new Pawn(EPieceColor.Black) {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 1}},
+            new Pawn(EPieceColor.Black) {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 2}},
+            new Pawn(EPieceColor.Black) {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 3}},
+            new Pawn(EPieceColor.Black) {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 4}},
+            new Pawn(EPieceColor.Black) {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 5}},
+            new Pawn(EPieceColor.Black) {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 6}},
+            new Pawn(EPieceColor.Black) {GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector() {Y = 1, X = 7}},
 
             // White pawns
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 0}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 1}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 2}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 3}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 4}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 5}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 6}},
-            new Pawn() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 7}},
+            new Pawn(EPieceColor.White) {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 0}},
+            new Pawn(EPieceColor.White) {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 1}},
+            new Pawn(EPieceColor.White) {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 2}},
+            new Pawn(EPieceColor.White) {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 3}},
+            new Pawn(EPieceColor.White) {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 4}},
+            new Pawn(EPieceColor.White) {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 5}},
+            new Pawn(EPieceColor.White) {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 6}},
+            new Pawn(EPieceColor.White) {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 6, X = 7}},
 
             // White pieces
             new Rook() {GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector() {Y = 7, X = 0}},
@@ -171,14 +171,25 @@ public class Tests
     [Test]
     public void PawnAvailableMoves()
     {
-        var whitePawn = new Pawn { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 6, X = 3 } };
-        GameInstance.Board[6, 3] = whitePawn;
+        GameInstance.Board = new IPiece[8,8];
+        var whitePawn = new Pawn(EPieceColor.White) { GameInstance = GameInstance, PieceColor = EPieceColor.White, Position = new Vector { Y = 6, X = 3 } };
+        GameInstance.Board[whitePawn.Position.Y, whitePawn.Position.X] = whitePawn;
+        var blackPawn =new Pawn(EPieceColor.Black) { GameInstance = GameInstance, PieceColor = EPieceColor.Black, Position = new Vector { Y = 3, X = 6 } };
+        GameInstance.Board[blackPawn.Position.Y, blackPawn.Position.X] = blackPawn;
+        DisplayPieces();
 
         whitePawn.CheckAvailableMoves();
+        blackPawn.CheckAvailableMoves();
+
+        whitePawn.AvailableMoves.ForEach(s => Console.WriteLine(s.ToString()));
+        blackPawn.AvailableMoves.ForEach(s => Console.WriteLine(s.ToString()));
 
         Assert.That(whitePawn.AvailableMoves.Count, Is.EqualTo(2));
         Assert.That(whitePawn.AvailableMoves, Does.Contain(new Vector { Y = 5, X = 3 }));
         Assert.That(whitePawn.AvailableMoves, Does.Contain(new Vector { Y = 4, X = 3 }));
+        Assert.That(blackPawn.AvailableMoves.Count, Is.EqualTo(2));
+        Assert.That(blackPawn.AvailableMoves, Does.Contain(new Vector { Y = 4, X = 6 }));
+        Assert.That(blackPawn.AvailableMoves, Does.Contain(new Vector { Y = 5, X = 6 }));
     }
 
     [Test]
