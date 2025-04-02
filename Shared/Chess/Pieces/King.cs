@@ -65,6 +65,8 @@ public class King : APiece
                 foreach (var vec in checkingPiece.Moves)
                 {
                     List<Vector> currentMoves = new();
+                    if(checkingPieces.Count == 1)
+                        currentMoves.Add(new () {Y = checkingPiece.Position.Y, X = checkingPiece.Position.X});
                     bool rightLine = false;
                     try
                     {

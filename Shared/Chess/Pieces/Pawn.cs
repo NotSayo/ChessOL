@@ -62,24 +62,6 @@ public class Pawn : APiece
             catch (IndexOutOfRangeException e)
             {
             }
-            if(Position.Y < 0 || Position.Y > 7 ||
-               Position.X + 1 < 0 || Position.X + 1 > 7) {}
-            else if (GameInstance.Board[Position.Y, Position.X + vec.X + 1] is Pawn pr)
-            {
-                if (pr.PieceColor != this.PieceColor && pr.IsLastMoveDouble)
-                {
-                    AvailableMoves.Add(new Vector() { Y = Position.Y + vec.Y, X = Position.X + vec.X + 1 });
-                }
-            }
-            if(Position.Y < 0 || Position.Y > 7 ||
-               Position.X - 1 < 0 || Position.X - 1 > 7) {}
-            else if (GameInstance.Board[Position.Y, Position.X + vec.X - 1] is Pawn pl)
-            {
-                if (pl.PieceColor != this.PieceColor && pl.IsLastMoveDouble)
-                {
-                    AvailableMoves.Add(new Vector() { Y = Position.Y + vec.Y, X = Position.X + vec.X - 1 });
-                }
-            }
         }
 
         try
@@ -95,7 +77,7 @@ public class Pawn : APiece
                 {
                     if (piece.PieceColor != this.PieceColor && piece is Pawn p)
                     {
-                        if (IsLastMoveDouble)
+                        if (p.IsLastMoveDouble)
                             AvailableMoves.Add(new Vector() { Y = piece.Position.Y + Moves.First(m => m.Y == -1 || m.Y == 1).Y, X = piece.Position.X });
                     }
                 }
