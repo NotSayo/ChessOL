@@ -9,7 +9,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Shared.Chess.GameManager;
+using Shared.Chess.Pieces;
 using Shared.Identity.Entities;
+using Shared.Types;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
