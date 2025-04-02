@@ -30,9 +30,12 @@ public class King : APiece
             .Any(p => p.AvailableMoves.Any(m => m.Y == this.Position.Y && m.X == this.Position.X)))
         {
             Console.WriteLine("King is in Check");
+            IsInCheck = true;
             CheckAvailableMovesDuringCheck();
             return;
         }
+        else
+            IsInCheck = false;
         CheckKingMoves();
     }
 

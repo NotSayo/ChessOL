@@ -15,16 +15,21 @@ public class Pawn : APiece
         PieceColor = color;
         if (PieceColor == EPieceColor.Black)
         {
-            Moves.Add(new Vector(1, 0));
+            Moves.Add(new Vector(0, 1));
         }
         else
         {
-            Moves.Add(new Vector(-1, 0));
+            Moves.Add(new Vector(0, -1));
         }
     }
 
     public override void CheckAvailableMoves()
     {
+        var king = GameInstance.Pieces.OfType<King>().First(e => e.PieceColor == this.PieceColor);
+        if (king.IsInCheck)
+        {
+            return;
+        }
         foreach (var vec in Moves)
         {
             try
@@ -66,7 +71,7 @@ public class Pawn : APiece
         {
             IsLastMoveDouble = true;
             Moves = new List<Vector>();
-            if(PieceColor == EPieceColor.Black)
+            if (PieceColor == EPieceColor.Black)
                 Moves.Add(new Vector(1, 0));
             else
                 Moves.Add(new Vector(-1, 0));

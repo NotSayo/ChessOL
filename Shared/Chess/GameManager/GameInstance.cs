@@ -7,10 +7,14 @@ namespace Shared.Chess.GameManager;
 public class GameInstance
 {
     public List<IPiece> Pieces { get; set; }
+    public List<IPiece> TakenPiecesBlack { get; set; }
+    public List<IPiece> TakenPiecesWhite { get; set; }
     public IPiece?[,] Board = new IPiece[8,8];
 
     public void InitializeGame()
     {
+        
+        
         Pieces.Add(new Rook()
         {
             GameInstance = this,
@@ -141,25 +145,51 @@ public class GameInstance
         });
         for (int i = 0; i < 8; i++)
         {
-            Pieces.Add(new Pawn()
+            Pieces.Add(new Pawn(EPieceColor.White)
             {
                 GameInstance = this,
                 Icon = @Icons.Custom.Uncategorized.ChessPawn,
-                PieceColor = EPieceColor.White,
                 Repetitive = false,
                 Position = new () { X = 6, Y = i }
             });
         }
         for (int i = 0; i < 8; i++)
         {
-            Pieces.Add(new Pawn()
+            Pieces.Add(new Pawn(EPieceColor.Black)
             {
                 GameInstance = this,
                 Icon = @Icons.Custom.Uncategorized.ChessPawn,
-                PieceColor = EPieceColor.Black,
                 Repetitive = false,
                 Position = new () { X = 1, Y = i }
             });
         }
+
+        foreach (var piece in Pieces)
+        {
+            Board[piece.Position.Y, piece.Position.X] = piece;
+        }
+    }
+
+    public void RemoveFromBoard(IPiece piece)
+    {
+        Console.WriteLine($"{Board[piece.Position.Y, piece.Position.X].Position.X} - {Board[piece.Position.Y, piece.Position.X].Position.Y}");
+
+        Board[piece.Position.Y, piece.Position.X] = null;
+    }
+    
+    public void AddToBoard(IPiece piece)
+    {
+        Board[piece.Position.Y, piece.Position.X] = piece;
+
+        Console.WriteLine($"{Board[piece.Position.Y, piece.Position.X].Position.X} - {Board[piece.Position.Y, piece.Position.X].Position.Y}");
+    }
+
+    public void TakePiece(IPiece piece)
+    {
+        Board[piece.Position.Y, piece.Position.X] = null;
+        if (piece.PieceColor == EPieceColor.Black)
+            TakenPiecesBlack.Add(piece);
+        else
+            TakenPiecesWhite.Add(piece);
     }
 }
