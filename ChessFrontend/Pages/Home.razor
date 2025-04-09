@@ -1,7 +1,16 @@
 ﻿@page "/"
+@inject NavigationManager Nav
 
 <PageTitle>Home</PageTitle>
 
+<button @onclick="NavigateToLogin">Go to Login</button>
 <h1>Hello, world!</h1>
 
-Welcome to your new app.
+@code {
+
+    public void NavigateToLogin()
+    {
+        Nav.NavigateTo("/login");
+    }
+
+}

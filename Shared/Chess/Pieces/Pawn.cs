@@ -91,7 +91,7 @@ public class Pawn : APiece
         AvailableMoves = AvailableMoves.Distinct().ToList();
     }
 
-    public override void Move() // TODO!!!
+    public override void Move(Vector location)
     {
         IsFirstMove = false;
         IsLastMoveDouble = false;
@@ -104,7 +104,7 @@ public class Pawn : APiece
             else
                 Moves.Add(new Vector(-1, 0));
         }
-        base.Move();
+        base.Move(location);
 
     }
 }

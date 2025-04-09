@@ -82,25 +82,9 @@ else
 
         if (dropItem.Item != null)
         {
-            _gameInstance?.RemoveFromBoard(dropItem.Item);
-
-            dropItem.Item.Position = new() { X = int.Parse(row), Y = int.Parse(col) };
-            
-            if (_gameInstance?.Pieces
-                .FirstOrDefault(p => p.Position.X == dropItem.Item.Position.X && p.Position.Y == dropItem.Item.Position.Y) != default)
-            {
-                Console.WriteLine("Taking piece...");
-                _gameInstance.TakePiece(dropItem.Item);
-            }
-            
-            dropItem.Item.AvailableMoves = new List<Vector>();
-
-            _gameInstance?.AddToBoard(dropItem.Item);
-
+            dropItem.Item.Move(new Vector(int.Parse(col), int.Parse(row)));
             Console.WriteLine($"Item Coords: {dropItem.Item.Position.X} - {dropItem.Item.Position.Y}");
         }
-        _gameInstance.Pieces.OfType<King>().ToList().ForEach(k => k.CheckAvailableMoves());
-
     }
     
     private bool CanDrop(IPiece piece, string identifier)

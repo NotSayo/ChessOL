@@ -1,4 +1,5 @@
-﻿using Shared.Chess.GameManager;
+﻿using MudBlazor;
+using Shared.Chess.GameManager;
 using Shared.Types;
 
 namespace Shared.Chess.Pieces;
@@ -13,8 +14,11 @@ public abstract class APiece : IPiece
     public abstract bool Repetitive { get; set; }
     public List<Vector> AvailableMoves { get; set; } = new();
     public List<Vector> VisibleFields { get; set; } = new();
+    public bool Active { get; set; } = true;
     public virtual void CheckAvailableMoves()
     {
+        if(!Active)
+            return;
         CheckVisibleFields();
         var king = GameInstance.Pieces.OfType<King>().FirstOrDefault(e => e.PieceColor == this.PieceColor);
         if (king is not null)
@@ -67,6 +71,8 @@ public abstract class APiece : IPiece
 
     public virtual void CheckVisibleFields()
     {
+        if(!Active)
+            return;
         var king = GameInstance.Pieces.OfType<King>().FirstOrDefault(e => e.PieceColor == this.PieceColor);
         if (king is not null)
         {
@@ -112,8 +118,17 @@ public abstract class APiece : IPiece
         }
     }
 
-    public virtual void Move()
+    public virtual void Move(Vector location)
     {
-        throw new NotImplementedException();
+        if (!Active)
+            return;
+        if (GameInstance.CurrentTurn != PieceColor)
+            return;
+        if (!AvailableMoves.Contains(location))
+            return;
+        GameInstance.RemoveFromBoard(this);
+        this.Position = location;
+        GameInstance.AddToBoard(this);
+        GameInstance.Pieces.OfType<King>().ToList().ForEach(k => k.CheckAvailableMoves());
     }
 }

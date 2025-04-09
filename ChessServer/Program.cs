@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
+using ChessServer.Endpoints;
 using IdentityLibrary.Identity.Context;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -39,6 +40,10 @@ builder.Services.AddIdentity<SystemUser, IdentityRole>(options =>
     options.Lockout.AllowedForNewUsers = false;
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.Zero;
     options.Lockout.MaxFailedAccessAttempts = int.MaxValue; // TODO change later
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireDigit = false;
+    options.Password.RequireNonAlphanumeric = false;
 }).AddEntityFrameworkStores<ChessContext>()
 .AddDefaultTokenProviders();;
 
@@ -94,70 +99,8 @@ app.UseCors(x => x
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGet("/token", () =>
-{
-    var tokenHandler = new JwtSecurityTokenHandler();
-    var tokenDescription = new SecurityTokenDescriptor
-    {
-        Subject = new ClaimsIdentity(),
-        Expires = DateTime.UtcNow.AddDays(2),
-        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-    };
-    var newToken = tokenHandler.CreateToken(tokenDescription);
-    var tokenString = tokenHandler.WriteToken(newToken);
-    return Results.Ok("Token: " + tokenString);
-});
-
-app.MapPost("/login", async (UserManager<SystemUser> userManager, SignInManager<SystemUser> signInManager, [FromBody] LoginModel model) =>
-{
-    var user = await userManager.FindByEmailAsync(model.Email);
-    if (user is not null)
-        return Results.Ok("Logged in");
-
-    user = new SystemUser
-    {
-        Email = model.Email,
-        UserName = model.Username,
-        DisplayName = model.Username
-    };
-
-    var identityResult = await userManager.CreateAsync(user, model.Password);
-
-    if (!identityResult.Succeeded)
-        return Results.InternalServerError(identityResult.Errors);
-
-    user = await userManager.FindByEmailAsync(model.Email);
-
-    var claims = new[]
-    {
-        new Claim(ClaimTypes.NameIdentifier, user.Id),
-        new Claim(ClaimTypes.Email, user.Email!)
-    };
-
-
-    var tokenHandler = new JwtSecurityTokenHandler();
-    var tokenDescription = new SecurityTokenDescriptor
-    {
-        Subject = new ClaimsIdentity(claims),
-        Expires = DateTime.UtcNow.AddDays(2),
-        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-    };
-    var newToken = tokenHandler.CreateToken(tokenDescription);
-    var tokenString = tokenHandler.WriteToken(newToken);
-    return Results.Ok("Token: " + tokenString);
-});
-
-    app.MapGet("/secret", [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]() =>
-    {
-        return Results.Ok("Secret");
-    });
+app.MapIdentityEndpoints(key);
 
 app.Run();
 
 
-public class LoginModel()
-{
-    public string Username { get; set; }
-    public string Email { get; set; }
-    public string Password { get; set; }
-}
