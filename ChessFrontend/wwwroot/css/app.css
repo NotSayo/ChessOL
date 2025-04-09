@@ -112,3 +112,47 @@ code {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+body {
+    background-color: #f5f5f5;
+}
+
+.mud-container {
+    margin-top: 2rem;
+}
+
+.drawer-full {
+    width: 240px;
+}
+
+.page-content {
+    margin-top: 2rem;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 768px) {
+    .drawer-full {
+        width: 200px;
+    }
+
+    .page-content {
+        margin: 1rem;
+        padding: 1rem;
+    }
+}
+
+html, body, .mud-layout, .mud-drawer-container {
+    height: 100%;
+}
+
+.hero-container {
+    background: linear-gradient(to right, #e3f2fd, #e8eaf6);
+    border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+
+

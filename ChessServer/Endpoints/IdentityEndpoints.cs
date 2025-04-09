@@ -26,7 +26,7 @@ public static class IdentityEndpoints
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Email, user.Email!)
+                new Claim(ClaimTypes.Name, user.Email!)
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();

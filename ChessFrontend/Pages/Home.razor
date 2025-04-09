@@ -1,16 +1,38 @@
 ﻿@page "/"
-@inject NavigationManager Nav
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager Navigation
 
-<PageTitle>Home</PageTitle>
+<MudPaper Class="hero-container p-6 mt-6" Elevation="3" Style="border-radius: 20px;">
+    <div class="d-flex flex-column align-center text-center">
+        <img src="images/chess-hero.png" alt="Chess Piece" style="max-width: 180px; margin-bottom: 1.5rem;" />
 
-<button @onclick="NavigateToLogin">Go to Login</button>
-<h1>Hello, world!</h1>
+        <MudText Typo="Typo.h3" Class="mb-1">
+            ♟ Welcome to <strong>ChessOL</strong>
+        </MudText>
 
-@code {
+        <MudText Typo="Typo.subtitle1" Class="mb-4" Color="Color.Secondary">
+            Play chess. Anytime. Anywhere.
+        </MudText>
 
-    public void NavigateToLogin()
-    {
-        Nav.NavigateTo("/login");
-    }
+        <AuthorizeView>
+            <Authorized>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" OnClick="@(() => Navigation.NavigateTo("/lobbies"))">
+                    View Active Lobbies
+                </MudButton>
+            </Authorized>
+            <NotAuthorized>
+                <div class="d-flex gap-2 justify-center">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/login">Login</MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Href="/register">Register</MudButton>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+</MudPaper>
 
-}
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-10 text-center">
+    <MudText Typo="Typo.h5" Class="mb-2">What is ChessOL?</MudText>
+    <MudText Typo="Typo.body1" Color="Color.Secondary">
+        ChessOL is your modern online chess arena. Join public lobbies, challenge friends, or practice against AI. Built with performance, accessibility, and community in mind.
+    </MudText>
+</MudContainer>

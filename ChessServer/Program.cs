@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using ChessServer.Endpoints;
+using ChessServer.Hubs;
 using IdentityLibrary.Identity.Context;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -88,6 +89,8 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddCors();
 
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 app.UseCors(x => x
@@ -98,8 +101,11 @@ app.UseCors(x => x
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseWebSockets();
 
 app.MapIdentityEndpoints(key);
+
+app.MapHub<GameHub>("/game");
 
 app.Run();
 

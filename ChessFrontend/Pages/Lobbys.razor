@@ -1,0 +1,75 @@
+﻿@page "/lobbys"
+@using Blazored.LocalStorage
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Http.Connections
+@using Microsoft.AspNetCore.SignalR.Client
+@using Shared.Lobby
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager Nav
+@attribute [Authorize]
+
+<h3>Lobbys</h3>
+
+@foreach (var lobby in _lobbys)
+{
+    <div>@lobby.Id</div>
+    <div>@lobby.Name</div>
+    <div>@lobby.OwnerName</div>
+}
+
+<button @onclick="CreateLobby">AddLobby</button>
+
+
+@code {
+    private HubConnection _connection;
+    private List<LobbyInfo> _lobbys = new List<LobbyInfo>();
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await GetToken();
+        if (string.IsNullOrEmpty(token))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+        _connection = new HubConnectionBuilder()
+            .WithUrl("http://localhost:7000/game", options =>
+            {
+                options.AccessTokenProvider = () => Task.FromResult(token)!;
+            }).Build();
+        RegisterSignalrMethods();
+        await _connection.StartAsync();
+
+        await _connection.SendAsync("GetStatus");
+        await _connection.SendAsync("GetLobby");
+    }
+
+    private void RegisterSignalrMethods()
+    {
+        _connection.On<string>("GetStatus", (s) =>
+        {
+            Console.WriteLine("Status: " + s);
+        });
+
+        _connection.On<List<LobbyInfo>>("ReceiveLobby", async (lobbies) =>
+        {
+            Console.WriteLine(lobbies.Count);
+            _lobbys = lobbies;
+            await InvokeAsync(StateHasChanged);
+        });
+    }
+
+    private async Task<string?> GetToken()
+    {
+        var token = await LocalStorage.GetItemAsStringAsync("Token");
+        if (token is not null)
+            token = token.Trim('\"');
+        return token;
+    }
+
+    private async Task CreateLobby()
+    {
+        Console.WriteLine("CreateLobby");
+        await _connection.InvokeAsync("AddLobby", "Test" + new Random().Next(1, 100), false, "");
+    }
+
+}
