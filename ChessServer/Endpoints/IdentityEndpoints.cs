@@ -77,7 +77,7 @@ public static class IdentityEndpoints
             };
             var newToken = tokenHandler.CreateToken(tokenDescription);
             var tokenString = tokenHandler.WriteToken(newToken);
-            return Results.Ok("Token: " + tokenString);
+            return Results.Ok(tokenString);
         });
 
         endpoints.MapGet("/token", () =>
