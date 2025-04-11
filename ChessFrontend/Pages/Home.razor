@@ -2,37 +2,41 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @inject NavigationManager Navigation
 
-<MudPaper Class="hero-container p-6 mt-6" Elevation="3" Style="border-radius: 20px;">
-    <div class="d-flex flex-column align-center text-center">
-        <img src="images/chess-hero.png" alt="Chess Piece" style="max-width: 180px; margin-bottom: 1.5rem;" />
+<MudContainer MaxWidth="MaxWidth.Medium" Class="flex-grow-1 d-flex flex-column align-center justify-center">
+    <MudPaper Elevation="6" Class="p-6" Style="width: 100%; border-radius: 20px;">
+        <div class="d-flex flex-column align-center text-center">
+            <img src="images/chess-hero.png" alt="Chess Piece" style="max-width: 180px; margin-bottom: 1.5rem;" />
 
-        <MudText Typo="Typo.h3" Class="mb-1">
-            ♟ Welcome to <strong>ChessOL</strong>
+            <MudText Typo="Typo.h4" Color="Color.Primary" Class="mb-1">
+                ♟ Welcome to <strong>ChessOL</strong>
+            </MudText>
+
+            <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Class="mb-4">
+                Play chess. Anytime. Anywhere.
+            </MudText>
+
+            <AuthorizeView>
+                <Authorized>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large"
+                               OnClick="@(() => Navigation.NavigateTo("/lobbys"))">
+                        View Active Lobbies
+                    </MudButton>
+                </Authorized>
+                <NotAuthorized>
+                    <MudStack Direction="Row" JustifyContent="Center" Spacing="2">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/login">Login</MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Href="/register">Register</MudButton>
+                    </MudStack>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+    </MudPaper>
+
+    <MudPaper Elevation="1" Class="p-6 mt-8" Style="width: 100%; border-radius: 16px;">
+        <MudText Typo="Typo.h5" Class="mb-2">What is ChessOL?</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary">
+            ChessOL is your modern online chess arena. Join public lobbies, challenge friends, or practice against AI.
+            Built with performance, accessibility, and community in mind.
         </MudText>
-
-        <MudText Typo="Typo.subtitle1" Class="mb-4" Color="Color.Secondary">
-            Play chess. Anytime. Anywhere.
-        </MudText>
-
-        <AuthorizeView>
-            <Authorized>
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" OnClick="@(() => Navigation.NavigateTo("/lobbies"))">
-                    View Active Lobbies
-                </MudButton>
-            </Authorized>
-            <NotAuthorized>
-                <div class="d-flex gap-2 justify-center">
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/login">Login</MudButton>
-                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Href="/register">Register</MudButton>
-                </div>
-            </NotAuthorized>
-        </AuthorizeView>
-    </div>
-</MudPaper>
-
-<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-10 text-center">
-    <MudText Typo="Typo.h5" Class="mb-2">What is ChessOL?</MudText>
-    <MudText Typo="Typo.body1" Color="Color.Secondary">
-        ChessOL is your modern online chess arena. Join public lobbies, challenge friends, or practice against AI. Built with performance, accessibility, and community in mind.
-    </MudText>
+    </MudPaper>
 </MudContainer>

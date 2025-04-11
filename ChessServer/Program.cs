@@ -106,6 +106,7 @@ app.UseWebSockets();
 app.MapIdentityEndpoints(key);
 
 app.MapHub<GameHub>("/game");
+app.MapHub<QueueHub>("/queue");
 
 app.Run();
 

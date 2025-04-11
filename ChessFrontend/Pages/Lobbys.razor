@@ -1,28 +1,45 @@
 ﻿@page "/lobbys"
 @using Blazored.LocalStorage
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Http.Connections
 @using Microsoft.AspNetCore.SignalR.Client
 @using Shared.Lobby
 @inject ILocalStorageService LocalStorage
 @inject NavigationManager Nav
 @attribute [Authorize]
 
-<h3>Lobbys</h3>
+<MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column align-center justify-center" Style="height: 100vh;">
+    <MudPaper Elevation="6" Class="p-6" Style="width: 100%; border-radius: 16px;">
+        <MudText Typo="Typo.h4" Color="Color.Primary" Align="Align.Center" Class="mb-4">Available Lobbies</MudText>
 
-@foreach (var lobby in _lobbys)
-{
-    <div>@lobby.Id</div>
-    <div>@lobby.Name</div>
-    <div>@lobby.OwnerName</div>
-}
+        @if (_lobbys.Count == 0)
+        {
+            <MudText Typo="Typo.body1" Align="Align.Center" Color="Color.Secondary">
+                No lobbies found. Be the first to create one!
+            </MudText>
+        }
+        else
+        {
+            @foreach (var lobby in _lobbys)
+            {
+                <MudPaper Class="mb-2 p-4" Elevation="2" Style="border-radius: 12px;">
+                    <MudText Typo="Typo.h6">@lobby.Name</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Owner: @lobby.OwnerName</MudText>
+                </MudPaper>
+            }
+        }
 
-<button @onclick="CreateLobby">AddLobby</button>
+        <MudDivider Class="my-4" />
 
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CreateLobby" FullWidth="true">
+            Add Lobby
+        </MudButton>
+    </MudPaper>
+</MudContainer>
 
 @code {
     private HubConnection _connection;
-    private List<LobbyInfo> _lobbys = new List<LobbyInfo>();
+    private List<LobbyInfo> _lobbys = new();
+
     protected override async Task OnInitializedAsync()
     {
         var token = await GetToken();
@@ -31,14 +48,15 @@
             Nav.NavigateTo("/login");
             return;
         }
+
         _connection = new HubConnectionBuilder()
             .WithUrl("http://localhost:7000/game", options =>
             {
                 options.AccessTokenProvider = () => Task.FromResult(token)!;
             }).Build();
+
         RegisterSignalrMethods();
         await _connection.StartAsync();
-
         await _connection.SendAsync("GetStatus");
         await _connection.SendAsync("GetLobby");
     }
@@ -61,9 +79,7 @@
     private async Task<string?> GetToken()
     {
         var token = await LocalStorage.GetItemAsStringAsync("Token");
-        if (token is not null)
-            token = token.Trim('\"');
-        return token;
+        return token?.Trim('\"');
     }
 
     private async Task CreateLobby()
@@ -71,5 +87,4 @@
         Console.WriteLine("CreateLobby");
         await _connection.InvokeAsync("AddLobby", "Test" + new Random().Next(1, 100), false, "");
     }
-
 }

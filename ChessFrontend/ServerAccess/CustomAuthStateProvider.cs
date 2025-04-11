@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text.Json;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -21,6 +22,20 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         var identity = string.IsNullOrWhiteSpace(token)
             ? new ClaimsIdentity()
             : new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
+
+        if(!string.IsNullOrEmpty(token))
+        {
+            var jwtHandler = new JwtSecurityTokenHandler();
+            var jwtToken = jwtHandler.ReadJwtToken(token);
+            var expiration = jwtToken.ValidTo;
+            if (expiration < DateTime.UtcNow)
+            {
+                identity = new ClaimsIdentity();
+                await _localStorage.RemoveItemAsync("Token");
+                NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+                return await GetAuthenticationStateAsync();
+            }
+        }
 
         return new AuthenticationState(new ClaimsPrincipal(identity));
     }
