@@ -1,13 +1,115 @@
 ﻿@page "/game"
+@using Blazored.LocalStorage
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.SignalR.Client
+@using Shared.Chess.GameManager
+@using Shared.Types
+@using Shared.Chess.Pieces
+@using Shared.Chess.SimplePieces
 @attribute [Authorize]
+
+@inject NavigationManager Nav
+@inject ILocalStorageService LocalStorage
 
 <PageTitle>Chess</PageTitle>
 
-<MudContainer>
-    <Board/>
-</MudContainer>
+@if (Game is not null && !string.IsNullOrEmpty(PlayerName))
+{
+    <MudContainer>
+        <Board Game="Game" PlayerName="@PlayerName"/>
+    </MudContainer>
+}
+else
+{
+    <div>Game is still loading...</div>
+}
+
+@if (Game is not null)
+{
+    <div>Code: @Game.GameCode</div>
+    <div>P1: @Game.Player1.Name</div>
+    <div>P2: @Game.Player2.Name</div>
+}
+
+@if (!string.IsNullOrEmpty(PlayerName))
+{
+    <div>Name: @PlayerName</div>
+}
 
 @code {
-    
+    private HubConnection? _connection;
+    public MultiplayerGame? Game;
+    private string PlayerName { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await GetToken();
+        var gameCode = await GetGameCode();
+        if (string.IsNullOrEmpty(gameCode))
+        {
+            Nav.NavigateTo("/queue");
+            return;
+        }
+        if (string.IsNullOrEmpty(token))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        _connection = new HubConnectionBuilder()
+            .WithUrl("http://localhost:7000/game", options =>
+            {
+                options.AccessTokenProvider = () => Task.FromResult(token)!;
+            }).Build();
+
+        RegisterSignalrMethods();
+        await _connection.StartAsync();
+        await _connection.InvokeAsync("GetGameInfo", gameCode);
+    }
+
+    private void RegisterSignalrMethods()
+    {
+        _connection.On<MultiplayerGame?>("GameInfo", async (game) =>
+        {
+            Console.WriteLine("Game Info received");
+            if(game is null)
+            {
+                Nav.NavigateTo("/gamequeue");
+                return;
+            }
+            Console.WriteLine("P1:" + game.Player1.Name);
+            Console.WriteLine("P2:" + game.Player2.Name);
+            Console.WriteLine("Code:" + game.GameCode);
+
+
+            Game = game;
+            await InvokeAsync(StateHasChanged);
+        });
+
+        _connection.On("NoAccess", () =>
+        {
+            Nav.NavigateTo("/gamequeue");
+            return;
+        });
+
+        _connection.On<string>("PlayerName", async (name) =>
+        {
+            Console.WriteLine("Name:" + name);
+            PlayerName = name;
+            await InvokeAsync(StateHasChanged);
+        });
+    }
+
+    private async Task<string?> GetToken()
+    {
+        var token = await LocalStorage.GetItemAsStringAsync("Token");
+        return token?.Trim('\"');
+    }
+
+    private async Task<string?> GetGameCode()
+    {
+        var gameCode = await LocalStorage.GetItemAsStringAsync("GameCode");
+        return gameCode?.Trim('\"');
+    }
+
 }

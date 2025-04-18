@@ -13,6 +13,14 @@ public class GameInstance
 
     public EPieceColor CurrentTurn { get; set; } = EPieceColor.White;
 
+    public GameInstance()
+    {
+        Pieces = new List<IPiece>();
+        TakenPiecesBlack = new List<IPiece>();
+        TakenPiecesWhite = new List<IPiece>();
+        InitializeGame();
+    }
+
     public void InitializeGame()
     {
         Pieces.Add(new Rook()

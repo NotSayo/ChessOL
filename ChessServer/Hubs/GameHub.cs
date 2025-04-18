@@ -1,57 +1,36 @@
 ﻿using System.Security.Claims;
 using ChessServer.Stores;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using Shared.Lobby;
 
 namespace ChessServer.Hubs;
 
-[Authorize]
+[Authorize(JwtBearerDefaults.AuthenticationScheme)]
 public class GameHub : Hub
 {
-    public async Task GetStatus()
+    public async Task GetGameInfo(string gameCode)
     {
-        await Clients.Caller.SendAsync("GetStatus", "Running");
-        await Clients.Caller.SendAsync("GetStatus", Context.User.Claims.First(s => s.Type == ClaimTypes.NameIdentifier).Value);
-        await Clients.Caller.SendAsync("GetStatus", Context.User.Claims.First(s => s.Type == ClaimTypes.Name).Value);
-    }
-
-    public async Task GetLobby()
-    {
-        await Clients.Caller.SendAsync("ReceiveLobby", LobbyStorage.Lobbies.Select(l => new LobbyInfo
+        var gameInstance = GameStore.ActiveGame.FirstOrDefault(g => g.GameCode == gameCode);
+        if (gameInstance is null)
         {
-            Id = l.Id,
-            Name = l.Name,
-            OwnerName = l.OwnerName,
-            Players = l.Players
-        }));
-    }
+            Console.WriteLine("No access for user: " + Context.User!.Claims.First(c => c.Type == ClaimTypes.Name).Value);
+            await Clients.Caller.SendAsync("NoAccess");
+            return;
+        }
 
-    public async Task SendLobbyUpdate()
-    {;
-        await Clients.All.SendAsync("ReceiveLobby", LobbyStorage.Lobbies.Select(l => new LobbyInfo
+        var username = Context.User!.Claims.First(s => s.Type == ClaimTypes.Name).Value;
+        if (gameInstance.Player1.Name != username && gameInstance.Player2.Name != username)
         {
-            Id = l.Id,
-            Name = l.Name,
-            OwnerName = l.OwnerName,
-            Players = l.Players
-        }));
+            await Clients.Caller.SendAsync("NoAccess");
+            Console.WriteLine("No access for user: " + username);
+            return;
+        }
+
+        Console.WriteLine("Game Info: " + gameInstance.GameCode);
+        Console.WriteLine("P1: " + gameInstance.Player1.Name);
+        Console.WriteLine("P2: " + gameInstance.Player2.Name);
+        await Clients.Caller.SendAsync("GameInfo",  gameInstance!);
+        await Clients.Caller.SendAsync("PlayerName", Context.User!.Claims.First(c => c.Type == ClaimTypes.Name).Value);
     }
-
-    public async Task AddLobby(string name, bool isPrivate, string passcode = "")
-    {
-        LobbyStorage.Lobbies.Add(new ()
-        {
-            Id = LobbyStorage.Lobbies.Count + 1 + "",
-            Name = name,
-            OwnerId = Context.User!.Claims.First(u => u.Type == ClaimTypes.NameIdentifier).Value,
-            OwnerName = Context.User!.Claims.First(u => u.Type == ClaimTypes.Name).Value,
-            Players = [Context.User!.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value],
-            IsPrivate = false,
-            Passcode = passcode
-        });
-        await SendLobbyUpdate();
-    }
-
-
 }

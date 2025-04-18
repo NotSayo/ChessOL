@@ -57,7 +57,8 @@
         if (result.Success)
         {
             await LocalStorage.SetItemAsStringAsync("Token", result.Data!.Trim('\"'));
-            Nav.NavigateTo("/game");
+
+            Nav.NavigateTo("/afterLogin?ReturnUrl=");
         }
         else
         {
@@ -65,36 +66,3 @@
         }
     }
 }
-@* *@
-@* *@
-@* @code { *@
-@*     private MudForm? _form; *@
-@*     private string? _username; *@
-@*     private string? _password; *@
-@*     private string? _error = ""; *@
-@* *@
-@*     private async Task LoginUser() *@
-@*     { *@
-@*         _error = ""; *@
-@*         await _form?.Validate(); *@
-@* *@
-@*         if (string.IsNullOrWhiteSpace(_username)) *@
-@*             _error += "Username is required. "; *@
-@*         if (string.IsNullOrWhiteSpace(_password)) *@
-@*             _error += "Password is required."; *@
-@* *@
-@*         if (!string.IsNullOrWhiteSpace(_error)) *@
-@*             return; *@
-@* *@
-@*         var result = await Api.LoginAsync(_username!, _password!); *@
-@*         if (result.Success) *@
-@*         { *@
-@*             await LocalStorage.SetItemAsStringAsync("Token", result.Data!.Trim('\"')); *@
-@*             Nav.NavigateTo("/game"); *@
-@*         } *@
-@*         else *@
-@*         { *@
-@*             _error = result.Message; *@
-@*         } *@
-@*     } *@
-@* } *@

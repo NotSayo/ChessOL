@@ -89,9 +89,16 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddCors();
 
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    options.MaximumReceiveMessageSize = 102400; // 100 KB
+    options.ClientTimeoutInterval = TimeSpan.FromMinutes(2);
+    options.KeepAliveInterval = TimeSpan.FromSeconds(30);
+});
 
 var app = builder.Build();
+
+app.UseRouting();
 
 app.UseCors(x => x
     .AllowAnyMethod()
@@ -99,12 +106,14 @@ app.UseCors(x => x
     .SetIsOriginAllowed(_ => true)
     .AllowCredentials());
 
+app.UseWebSockets();
+
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseWebSockets();
 
 app.MapIdentityEndpoints(key);
 
+app.MapHub<LobbyHub>("/lobby");
 app.MapHub<GameHub>("/game");
 app.MapHub<QueueHub>("/queue");
 

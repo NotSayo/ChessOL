@@ -50,7 +50,7 @@
         }
 
         _connection = new HubConnectionBuilder()
-            .WithUrl("http://localhost:7000/game", options =>
+            .WithUrl("http://localhost:7000/lobby", options =>
             {
                 options.AccessTokenProvider = () => Task.FromResult(token)!;
             }).Build();

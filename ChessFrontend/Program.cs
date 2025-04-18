@@ -23,4 +23,6 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress =new Uri("http://l
 builder.Services.AddScoped<ApiAccessor>();
 builder.Services.AddBlazoredLocalStorage();
 
+
+
 await builder.Build().RunAsync();

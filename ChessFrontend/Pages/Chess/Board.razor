@@ -1,10 +1,11 @@
 ﻿@using Shared.Chess.GameManager
 @using Shared.Chess.Pieces
+@using Shared.Chess.SimplePieces
 @using Shared.Types
 
-@if (_gameInstance != null)
+@if (Game is not null)
 {
-    <MudDropContainer T="IPiece" Items="_gameInstance.Pieces" CanDropClass="mud-border-info" NoDropClass="mud-border-error" 
+    <MudDropContainer T="SimplePiece" Items="Game.GameInfo.Pieces" CanDropClass="mud-border-info" NoDropClass="mud-border-error"
                       CanDrop="CanDrop" 
                       ItemsSelector="@((item, dropzone) => item.Position.ToStringIdentifier() == dropzone)" 
                       ItemDropped="ItemUpdated" Class="border-2 border-solid mud-border-lines-default">
@@ -18,7 +19,7 @@
                         var col = j.ToString();
                         var bg = (i + j) % 2 == 1 ? "background-color:grey;" : "background-color:brown;";
                         var style = bg + "height: 64px; width: 64px;";
-                        <MudDropZone T="IPiece" Identifier="@(($"{col}{row}"))" DraggingClass="mud-theme-success"
+                        <MudDropZone T="SimplePiece" Identifier="@(($"{col}{row}"))" DraggingClass="mud-theme-success"
                                      Class="d-flex justify-center align-center border-2 border-solid docs-gray-bg mud-border-lines-default" 
                                      Style="@style"/>
                     }
@@ -29,24 +30,24 @@
             <div class="d-flex justify-center align-center flex-grow-1">
                 @if (true)
                 {
-                    var color = context.PieceColor == EPieceColor.White ? "color: #FFFFFF;" : "color: #000000;";
+                    var color = context.EPieceColor == EPieceColor.White ? "color: #FFFFFF;" : "color: #000000;";
                     <MudIcon Icon="@context.Icon" Size="Size.Large" Style="@color"/>
                 }
             </div>
         </ItemRenderer>
     </MudDropContainer>
-    <MudList T="IPiece">
-        @foreach (var piece in _gameInstance.TakenPiecesBlack)
-        {
-            <MudListItem Icon="@piece.Icon" IconSize="Size.Large" IconColor="Color.Dark"/>
-        }
-    </MudList>
-    <MudList T="IPiece">
-        @foreach (var piece in _gameInstance.TakenPiecesWhite)
-        {
-            <MudListItem Icon="@piece.Icon" IconSize="Size.Large" IconColor="Color.Error"/>
-        }
-    </MudList>
+    @* <MudList T="IPiece"> *@
+    @*     @foreach (var piece in GameInstance.TakenPiecesBlack) *@
+    @*     { *@
+    @*         <MudListItem Icon="@piece.Icon" IconSize="Size.Large" IconColor="Color.Dark"/> *@
+    @*     } *@
+    @* </MudList> *@
+    @* <MudList T="IPiece"> *@
+    @*     @foreach (var piece in GameInstance.TakenPiecesWhite) *@
+    @*     { *@
+    @*         <MudListItem Icon="@piece.Icon" IconSize="Size.Large" IconColor="Color.Error"/> *@
+    @*     } *@
+    @* </MudList> *@
 }
 else
 {
@@ -54,44 +55,53 @@ else
 }
 
 @code {
-    
-    
-    private GameInstance? _gameInstance;
+    [Parameter]
+    public required MultiplayerGame Game { get; set; }
+    [Parameter]
+    public required string PlayerName { get; set; }
+
+    public EPieceColor PieceColor { get; set; }
+
 
     protected override async Task OnInitializedAsync()
-    {   
-        await base.OnInitializedAsync();
+    {
+        PieceColor = Game.Player1.Name == PlayerName ? EPieceColor.White : EPieceColor.Black;
 
-        _gameInstance = new GameInstance()
+        foreach (var item in Game.GameInfo.Pieces)
         {
-            Pieces = new List<IPiece>(),
-            TakenPiecesBlack = new List<IPiece>(),
-            TakenPiecesWhite = new List<IPiece>()
-        };
-        _gameInstance.InitializeGame();
-        _gameInstance.Pieces.OfType<King>().ToList().ForEach(k => k.CheckAvailableMoves());
+            Console.WriteLine(item.EPieceType.ToString());
+            Console.WriteLine(item.Icon);
+            Console.WriteLine(item.Position.ToStringIdentifier());
+            Console.WriteLine(item.Position.ToString());
+        }
+
+        await base.OnInitializedAsync();
+        await InvokeAsync(StateHasChanged);
     }
 
-    private void ItemUpdated(MudItemDropInfo<IPiece> dropItem)
+    private void ItemUpdated(MudItemDropInfo<SimplePiece> dropItem)
     {
-        Console.WriteLine($"Dropzone Coords: {dropItem.DropzoneIdentifier[0]} - {dropItem.DropzoneIdentifier[1]}");
-
-        var row = dropItem.DropzoneIdentifier[0].ToString();
-        var col = dropItem.DropzoneIdentifier[1].ToString();
-
-
-        if (dropItem.Item != null)
-        {
-            dropItem.Item.Move(new Vector(int.Parse(col), int.Parse(row)));
-            Console.WriteLine($"Item Coords: {dropItem.Item.Position.X} - {dropItem.Item.Position.Y}");
-        }
+        // Console.WriteLine($"Dropzone Coords: ROW:{dropItem.DropzoneIdentifier[0]} - COL:{dropItem.DropzoneIdentifier[1]}");
+        //
+        // var row = dropItem.DropzoneIdentifier[0].ToString();
+        // var col = dropItem.DropzoneIdentifier[1].ToString();
+        //
+        //
+        // if (dropItem.Item != null)
+        // {
+        //     dropItem.Item.Move(new Vector(int.Parse(col), int.Parse(row)));
+        //     Console.WriteLine($"Item Coords: {dropItem.Item.Position.X} - {dropItem.Item.Position.Y}");
+        // }
     }
     
-    private bool CanDrop(IPiece piece, string identifier)
+    private bool CanDrop(SimplePiece piece, string identifier)
     {
-        Console.WriteLine(identifier);
-        piece.CheckAvailableMoves();
-        return piece.AvailableMoves
-            .Any(v => v.X.ToString() == identifier[0].ToString() && v.Y.ToString() == identifier[1].ToString());
+        if(piece.EPieceColor != PieceColor)
+            return false;
+        // Console.WriteLine(identifier);
+        //
+        // return piece.AvailableMoves
+        //     .Any(v => v.X.ToString() == identifier[0].ToString() && v.Y.ToString() == identifier[1].ToString());
+        return true;
     }
 }

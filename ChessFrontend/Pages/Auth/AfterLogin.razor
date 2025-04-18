@@ -1,0 +1,35 @@
+﻿@page "/afterLogin"
+@using Blazored.LocalStorage
+
+@inject NavigationManager Nav
+@inject ILocalStorageService LocalStorage
+
+<h3>afterLogin</h3>
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? ReturnUrl { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var refresh = await GetRefresh();
+        if (string.IsNullOrEmpty(refresh))
+        {
+            await LocalStorage.SetItemAsync("refresh", "true");
+            Nav.Refresh();
+            return;
+        }
+        await LocalStorage.RemoveItemAsync("refresh");
+        Nav.NavigateTo("/"+ ReturnUrl);
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task<string?> GetRefresh()
+    {
+        var refresh = await LocalStorage.GetItemAsStringAsync("refresh");
+        return refresh;
+    }
+
+}

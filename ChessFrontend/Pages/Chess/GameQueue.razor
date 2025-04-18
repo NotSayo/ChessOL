@@ -100,7 +100,8 @@
 
         _connection.On<string>("GameStart", (code) =>
         {
-            Nav.NavigateTo($"game/{code}");
+            LocalStorage.SetItemAsStringAsync("GameCode", code);
+            Nav.NavigateTo($"/game");
         });
 
         _connection.On<bool>("QueueCheck", async (c) =>
