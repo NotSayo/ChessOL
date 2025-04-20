@@ -54,13 +54,15 @@ public class QueueHub : Hub
             var randomFirstPlayer = new Random().NextDouble() > 0.5 ? player1 : player2;
             var randomSecondPlayer = randomFirstPlayer == player1 ? player2 : player1;
 
-
+            var instance = new GameInstance();
+            instance.InitializeGame();
             string gameCode = Guid.NewGuid().ToString()[..10];
-            GameStore.ActiveGame.Add(new(new GameInstance())
+            GameStore.ActiveGame.Add(new(instance)
             {
                 Player1 = randomFirstPlayer,
                 Player2 = randomSecondPlayer,
-                GameCode = gameCode
+                GameCode = gameCode,
+                Instance = instance
             });
             await Clients.User(player1.PlayerId).SendAsync("GameStart", gameCode);
             await Clients.User(player1.PlayerId).SendAsync("PlayerName", player1.Name);

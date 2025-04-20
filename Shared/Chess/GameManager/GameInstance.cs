@@ -23,6 +23,7 @@ public class GameInstance
 
     public void InitializeGame()
     {
+        Pieces = new List<IPiece>();
         Pieces.Add(new Rook()
             { GameInstance = this, Icon = Icons.Custom.Uncategorized.ChessRook, PieceColor = EPieceColor.White, Repetitive = true, Position = new() { Y = 7, X = 0 } });
         Pieces.Add(new Rook()
@@ -74,6 +75,7 @@ public class GameInstance
         }
 
         CurrentTurn = EPieceColor.White;
+        Pieces.ForEach(p => p.CheckAvailableMoves());
     }
 
 
@@ -94,6 +96,15 @@ public class GameInstance
             oldPiece.Active = false;
         }
         Board[piece.Position.Y, piece.Position.X] = piece;
+
+    }
+
+    public void MovePiece(IPiece piece, Vector newPosition)
+    {
+        piece!.Position = newPosition;
+
+        piece.Move(newPosition);
         CurrentTurn = CurrentTurn == EPieceColor.White ? EPieceColor.Black : EPieceColor.White;
+        Pieces.ForEach(p => p.CheckAvailableMoves());
     }
 }

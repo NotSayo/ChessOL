@@ -11,6 +11,7 @@ public class SimplePiece
     public string Icon { get; set; }
 
     public Vector Position { get; set; }
+    public List<Vector> AvailableMoves { get; set; } = new();
 
     public SimplePiece()
     {

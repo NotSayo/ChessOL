@@ -1,4 +1,5 @@
-﻿using Shared.Chess.Pieces;
+﻿using System.Text.Json.Serialization;
+using Shared.Chess.Pieces;
 using Shared.Chess.SimplePieces;
 using Shared.Types;
 
@@ -11,6 +12,8 @@ public class MultiplayerGame
     public required Player Player1 { get; set; }
     public required Player Player2 { get; set; }
     public string GameCode { get; set; }
+    [JsonIgnore]
+    public GameInstance? Instance { get; set; }
 
     public MultiplayerGame()
     {
@@ -18,8 +21,14 @@ public class MultiplayerGame
 
     public MultiplayerGame(GameInstance instance)
     {
+        Instance = instance;
+        UpdateGameInfo();
+    }
+
+    public void UpdateGameInfo()
+    {
         var simplePieces = new List<SimplePiece>();
-        foreach (var piece in instance.Pieces)
+        foreach (var piece in Instance.Pieces)
         {
             var sPiece = new SimplePiece()
             {
@@ -34,7 +43,8 @@ public class MultiplayerGame
                     King => EPieceType.King,
                     Pawn => EPieceType.Pawn,
                     _ => throw new ArgumentOutOfRangeException()
-                }
+                },
+                AvailableMoves = piece.AvailableMoves
             };
             sPiece.AssignIcon();
             simplePieces.Add(sPiece);
@@ -42,7 +52,7 @@ public class MultiplayerGame
 
         GameInfo = new GameInfo
         {
-            CurrentTurn = instance.CurrentTurn,
+            CurrentTurn = Instance.CurrentTurn,
             Pieces = simplePieces,
         };
     }

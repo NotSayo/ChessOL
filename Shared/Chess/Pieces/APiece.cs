@@ -129,6 +129,5 @@ public abstract class APiece : IPiece
         GameInstance.RemoveFromBoard(this);
         this.Position = location;
         GameInstance.AddToBoard(this);
-        GameInstance.Pieces.OfType<King>().ToList().ForEach(k => k.CheckAvailableMoves());
     }
 }

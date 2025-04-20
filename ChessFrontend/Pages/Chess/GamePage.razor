@@ -16,7 +16,56 @@
 @if (Game is not null && !string.IsNullOrEmpty(PlayerName))
 {
     <MudContainer>
-        <Board Game="Game" PlayerName="@PlayerName"/>
+        <MudDropContainer T="SimplePiece"
+                          Items="Game.GameInfo.Pieces"
+                          CanDropClass="mud-border-info"
+                          NoDropClass="mud-border-error"
+                          @ref="_board"
+                          CanDrop="CanDrop"
+                          ItemsSelector="@( (item, dropzone) => item.Position.ToStringIdentifier() == dropzone )"
+                          ItemDropped="ItemUpdated"
+                          Class="border-2 border-solid mud-border-lines-default">
+            <ChildContent>
+                @* Loop over 0→7 for display, but compute “real” coords based on your color *@
+                @for (int displayRow = 0; displayRow < 8; displayRow++)
+                {
+                    <div class="d-flex">
+                        @for (int displayCol = 0; displayCol < 8; displayCol++)
+                        {
+                            // Flip indices if you're Black
+                            var boardRow = PlayerPieceColor == EPieceColor.White
+                                               ? displayRow
+                                               : 7 - displayRow;
+                            var boardCol = PlayerPieceColor == EPieceColor.White
+                                               ? displayCol
+                                               : 7 - displayCol;
+
+                            var id = $"{boardCol}{boardRow}";
+                            var isDark = (displayRow + displayCol) % 2 == 1;
+                            var bg = isDark ? "background-color:grey;" : "background-color:brown;";
+
+                            <MudDropZone T="SimplePiece"
+                                         Identifier="@id"
+                                         DraggingClass="mud-theme-success"
+                                         Class="d-flex justify-center align-center border-2 border-solid docs-gray-bg mud-border-lines-default"
+                                         Style="@($"{bg} height:64px; width:64px;")" />
+                        }
+                    </div>
+                }
+            </ChildContent>
+
+            <ItemRenderer>
+                <div class="d-flex justify-center align-center flex-grow-1">
+                    @* Draw each piece in the correct color *@
+                    @{
+                        var iconColor = context.EPieceColor == EPieceColor.White
+                                            ? "color: #FFFFFF;"
+                                            : "color: #000000;";
+                    }
+                    <MudIcon Icon="@context.Icon" Size="Size.Large" Style="@iconColor" />
+                </div>
+            </ItemRenderer>
+        </MudDropContainer>
     </MudContainer>
 }
 else
@@ -39,11 +88,17 @@ else
 @code {
     private HubConnection? _connection;
     public MultiplayerGame? Game;
+    private MudDropContainer<SimplePiece>? _board;
+
     private string PlayerName { get; set; } = string.Empty;
+    private EPieceColor PlayerPieceColor =>
+        Game?.Player1.Name == PlayerName
+            ? EPieceColor.White
+            : EPieceColor.Black;
 
     protected override async Task OnInitializedAsync()
     {
-        var token = await GetToken();
+        var token    = await GetToken();
         var gameCode = await GetGameCode();
         if (string.IsNullOrEmpty(gameCode))
         {
@@ -57,10 +112,9 @@ else
         }
 
         _connection = new HubConnectionBuilder()
-            .WithUrl("http://localhost:7000/game", options =>
-            {
-                options.AccessTokenProvider = () => Task.FromResult(token)!;
-            }).Build();
+            .WithUrl("http://localhost:7000/game", opts =>
+                opts.AccessTokenProvider = () => Task.FromResult(token)!)
+            .Build();
 
         RegisterSignalrMethods();
         await _connection.StartAsync();
@@ -69,20 +123,34 @@ else
 
     private void RegisterSignalrMethods()
     {
-        _connection.On<MultiplayerGame?>("GameInfo", async (game) =>
+        _connection!.On<MultiplayerGame?>("GameInfo", async game =>
         {
-            Console.WriteLine("Game Info received");
-            if(game is null)
+            if (game is null)
             {
                 Nav.NavigateTo("/gamequeue");
                 return;
             }
-            Console.WriteLine("P1:" + game.Player1.Name);
-            Console.WriteLine("P2:" + game.Player2.Name);
-            Console.WriteLine("Code:" + game.GameCode);
-
 
             Game = game;
+            if (_board is not null)
+            {
+                _board.Items   = Game.GameInfo.Pieces;
+                _board.Refresh();
+            }
+            await InvokeAsync(StateHasChanged);
+        });
+
+        _connection.On<GameInfo>("GameInfoUpdate", async gameInfo =>
+        {
+            if (Game is null)
+                return;
+
+            Game.GameInfo = gameInfo;
+            if (_board is not null)
+            {
+                _board.Items   = gameInfo.Pieces;
+                _board.Refresh();
+            }
             await InvokeAsync(StateHasChanged);
         });
 
@@ -92,9 +160,8 @@ else
             return;
         });
 
-        _connection.On<string>("PlayerName", async (name) =>
+        _connection.On<string>("PlayerName", async name =>
         {
-            Console.WriteLine("Name:" + name);
             PlayerName = name;
             await InvokeAsync(StateHasChanged);
         });
@@ -102,14 +169,40 @@ else
 
     private async Task<string?> GetToken()
     {
-        var token = await LocalStorage.GetItemAsStringAsync("Token");
-        return token?.Trim('\"');
+        var tok = await LocalStorage.GetItemAsStringAsync("Token");
+        return tok?.Trim('\"');
     }
 
     private async Task<string?> GetGameCode()
     {
-        var gameCode = await LocalStorage.GetItemAsStringAsync("GameCode");
-        return gameCode?.Trim('\"');
+        var code = await LocalStorage.GetItemAsStringAsync("GameCode");
+        return code?.Trim('\"');
     }
 
+    private void ItemUpdated(MudItemDropInfo<SimplePiece> dropItem)
+    {
+        _connection?.InvokeAsync(
+            "MovePiece",
+            Game!.GameCode,
+            dropItem.Item!.Position,
+            new Vector(
+                int.Parse(dropItem.DropzoneIdentifier[1].ToString()),
+                int.Parse(dropItem.DropzoneIdentifier[0].ToString())
+            ));
+    }
+
+    private bool CanDrop(SimplePiece piece, string identifier)
+    {
+        if (piece.EPieceColor != PlayerPieceColor)
+            return false;
+
+        if (Game!.GameInfo.CurrentTurn != piece.EPieceColor)
+            return false;
+
+        var target = new Vector(
+            int.Parse(identifier[1].ToString()),
+            int.Parse(identifier[0].ToString())
+        );
+        return piece.AvailableMoves.Contains(target);
+    }
 }
