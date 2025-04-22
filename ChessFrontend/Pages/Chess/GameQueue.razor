@@ -1,0 +1,143 @@
+﻿@page "/gameQueue"
+@using Blazored.LocalStorage
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Nav
+@inject ILocalStorageService LocalStorage
+
+@implements IAsyncDisposable
+
+<MudContainer MaxWidth="MaxWidth.Medium"
+              Class="flex-grow-1 d-flex flex-column align-center justify-center px-6 py-8">
+    <MudPaper Elevation="6"
+              Class="p-6"
+              Style="width: 100%; max-width: 600px; border-radius: 16px; text-align: center;">
+
+        <MudText Typo="Typo.h4" Color="Color.Primary" Class="mb-2">
+            Matchmaking Queue
+        </MudText>
+
+        <MudText Typo="Typo.subtitle2" Color="Color.Secondary" Class="mb-4">
+            @(_queueStatus ?? "Waiting for server...")
+        </MudText>
+
+        <MudStack Spacing="2" AlignItems="AlignItems.Center" JustifyContent="Center" Class="mb-4">
+            @if (InQueue)
+            {
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" Class="mb-2" />
+                <MudText Typo="Typo.h6">You are in position: <b>@_queuePosition</b></MudText>
+            }
+            <MudText Typo="Typo.body2">Players in queue: <b>@_queueAmount</b></MudText>
+        </MudStack>
+
+        <MudDivider Class="my-4" />
+
+        <MudStack Direction="Row" JustifyContent="Center" Spacing="2">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="JoinQueue">Join Queue</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="LeaveQueue">Leave Queue</MudButton>
+        </MudStack>
+    </MudPaper>
+</MudContainer>
+
+
+@code {
+    private HubConnection _connection;
+    private string? _queueStatus;
+    private int _queuePosition;
+    private int _queueAmount;
+    private bool InQueue = false;
+    private Timer? _keepAliveTimer;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await GetToken();
+        if (string.IsNullOrEmpty(token))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        _connection = new HubConnectionBuilder()
+            .WithUrl("http://localhost:7000/queue", options =>
+            {
+                options.AccessTokenProvider = () => Task.FromResult(token)!;
+            }).Build();
+
+        RegisterSignalrMethods();
+        await _connection.StartAsync();
+        await _connection.SendAsync("GetStatus");
+        await _connection.SendAsync("GetQueueStatus");
+        await _connection.SendAsync("CheckIfInQueue");
+
+        _keepAliveTimer = new Timer(async _ =>
+        {
+            if (_connection.State == HubConnectionState.Connected)
+            {
+                await _connection.SendAsync("GetStatus");
+            }
+        }, null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20)); // every 20s
+    }
+
+    private void RegisterSignalrMethods()
+    {
+        _connection.On<string>("QueueStatus", async (qs) =>
+        {
+            _queueStatus = qs;
+            await InvokeAsync(StateHasChanged);
+        });
+
+        _connection.On<int>("QueuePosition", async (pos) =>
+        {
+            _queuePosition = pos;
+            await InvokeAsync(StateHasChanged);
+        });
+
+        _connection.On<int>("QueueAmount", async (am) =>
+        {
+            _queueAmount = am;
+            await InvokeAsync(StateHasChanged);
+        });
+
+        _connection.On<string>("GameStart", (code) =>
+        {
+            LocalStorage.SetItemAsStringAsync("GameCode", code);
+            Nav.NavigateTo($"/game");
+        });
+
+        _connection.On<bool>("QueueCheck", async (c) =>
+        {
+            InQueue = c;
+            await InvokeAsync(StateHasChanged);
+        });
+
+        _connection.On("RequireUpdate", async () =>
+        {
+            await _connection.SendAsync("GetQueueStatus");
+        });
+    }
+
+    private async Task<string?> GetToken()
+    {
+        var token = await LocalStorage.GetItemAsStringAsync("Token");
+        return token?.Trim('\"');
+    }
+
+    private async Task JoinQueue()
+    {
+        await _connection.SendAsync("EnterQueue");
+    }
+
+    private async Task LeaveQueue()
+    {
+        Console.WriteLine("LeaveQueue");
+        await _connection.SendAsync("LeaveQueue");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_connection is not null)
+            await _connection.DisposeAsync();
+
+        _keepAliveTimer?.DisposeAsync();
+    }
+}

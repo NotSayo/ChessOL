@@ -1,11 +1,317 @@
 ﻿@page "/game"
+@using Blazored.LocalStorage
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.SignalR.Client
+@using Shared.Chess.GameManager
+@using Shared.Types
+@using Shared.Chess.Pieces
+@using Shared.Chess.SimplePieces
+@attribute [Authorize]
+
+@inject NavigationManager Nav
+@inject ILocalStorageService LocalStorage
+@inject IDialogService DialogService
+
 
 <PageTitle>Chess</PageTitle>
 
-<MudContainer>
-    <Board/>
-</MudContainer>
+@if (Game is not null && !string.IsNullOrEmpty(PlayerName))
+{
+
+    @if (Game?.IsGameOver == true)
+    {
+        <MudCard Class="p-3 mt-2 text-center mb-5" Elevation="4" Style="background-color: #f9f9fb;">
+            <MudCardHeader Class="justify-center">
+                <MudText Typo="Typo.h5" Class="d-flex align-center justify-center">
+                    <MudIcon Icon="@Icons.Material.Filled.Celebration" Class="mr-2 text-success" />
+                    GAME OVER!
+                </MudText>
+            </MudCardHeader>
+
+            <MudCardContent>
+                <MudText Typo="Typo.subtitle1" Class="mb-4">
+                    @if (string.IsNullOrEmpty(Game.Winner))
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Handshake" Class="mr-1 text-warning" />
+                        <span><b>It's a draw!</b></span>
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.EmojiEvents" Class="mr-1 text-primary" />
+                        <span><b>@(Game.Winner)</b> won the game</span>
+                    }
+                </MudText>
+
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.ArrowBack"
+                           OnClick="@(() => Nav.NavigateTo("/gamequeue"))">
+                    Back to Queue
+                </MudButton>
+            </MudCardContent>
+        </MudCard>
+    }
+    <div class="d-flex flex-column flex-lg-row justify-content-start align-start p-4 gap-5 c chess-wrapper">
+        <MudDropContainer T="SimplePiece"
+          Items="Game.GameInfo.Pieces"
+          CanDropClass="mud-border-info"
+          NoDropClass="mud-border-error"
+          @ref="_board"
+          CanDrop="CanDrop"
+          ItemsSelector="@( (item, dropzone) => item.Position.ToStringIdentifier() == dropzone )"
+          ItemDropped="ItemUpdated"
+          Class="border-2 border-solid rounded-lg"
+          Style="display: inline-block;">
+            <ChildContent>
+                @for (int displayRow = 0; displayRow < 8; displayRow++)
+                {
+                    <div class="d-flex">
+                        @for (int displayCol = 0; displayCol < 8; displayCol++)
+                        {
+                            var boardRow = PlayerPieceColor == EPieceColor.White ? displayRow : 7 - displayRow;
+                            var boardCol = PlayerPieceColor == EPieceColor.White ? displayCol : 7 - displayCol;
+
+                            var id = $"{boardCol}{boardRow}";
+                            var isDark = (displayRow + displayCol) % 2 == 1;
+                            var bg = isDark ? "background-color:#A52A2A;" : "background-color:#808080;";
+
+                            <MudDropZone T="SimplePiece"
+                             Identifier="@id"
+                             DraggingClass="chess-tile dragging"
+                             Class="chess-tile d-flex justify-center align-center border"
+                             Style="@($"{bg}")" />
+                        }
+                    </div>
+                }
+            </ChildContent>
+
+            <ItemRenderer>
+                <div class="d-flex justify-center align-center flex-grow-1">
+                    @{
+                        var iconColor = context.EPieceColor == EPieceColor.White ? "color: #fff;" : "color: #000;";
+                    }
+                    <MudIcon Icon="@context.Icon" Size="Size.Large" Style="@iconColor" />
+                </div>
+            </ItemRenderer>
+        </MudDropContainer>
+
+        <div class="d-flex flex-column gap-3">
+            <MudCard Class="p-3" Elevation="4">
+                <MudCardHeader>
+                    <MudText Typo="Typo.h6">
+                        <MudIcon Icon="@Icons.Material.Filled.Info" Class="mr-1 text-primary" />
+                        <b>Game Info</b>
+                    </MudText>
+                </MudCardHeader>
+
+                <MudCardContent>
+                    <MudStack Spacing="1">
+                        <MudText>
+                            <MudIcon Icon="@Icons.Material.Filled.VpnKey" Class="mr-1 text-secondary" />
+                            <b>Code:</b> @Game.GameCode
+                        </MudText>
+                        <MudText>
+                            <MudIcon Icon="@Icons.Material.Filled.Person" Class="mr-1 text-secondary" />
+                            <b>White:</b> @Game.Player1.Name
+                        </MudText>
+                        <MudText>
+                            <MudIcon Icon="@Icons.Material.Filled.Person" Class="mr-1 text-secondary" />
+                            <b>Black:</b> @Game.Player2.Name
+                        </MudText>
+                        <MudText>
+                            <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Class="mr-1 text-secondary" />
+                            <b>You:</b> @PlayerName
+                        </MudText>
+                    </MudStack>
+                </MudCardContent>
+            </MudCard>
+
+            <div class="d-flex gap-2">
+                <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="OfferDraw">
+                    Offer Draw
+                </MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="Resign">
+                    Resign
+                </MudButton>
+            </div>
+
+
+            @if (Game.DrawRequested)
+            {
+                <MudCard Class="p-3" Elevation="4">
+                    <MudCardContent>
+                        <MudText Typo="Typo.subtitle1">
+                            <MudIcon Icon="@Icons.Material.Filled.Handshake" Class="mr-1 text-warning" />
+                            <b>@(Game.DrawRequestedByPlayer == PlayerName ? Game.Player2.Name : Game.Player1.Name)</b> is requesting a draw.
+                        </MudText>
+
+                        <div class="d-flex gap-2 mt-3 justify-center">
+                            <MudButton Disabled="@(Game.DrawRequestedByPlayer == PlayerName)"
+                                       Color="Color.Success"
+                                       Variant="Variant.Filled"
+                                       OnClick="AcceptDraw">
+                                <MudIcon Icon="@Icons.Material.Filled.Check" Class="mr-1" /> Yes
+                            </MudButton>
+                            <MudButton Disabled="@(Game.DrawRequestedByPlayer == PlayerName)"
+                                       Color="Color.Error"
+                                       Variant="Variant.Outlined"
+                                       OnClick="DeclineDraw">
+                                <MudIcon Icon="@Icons.Material.Filled.Close" Class="mr-1" /> No
+                            </MudButton>
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="p-4">Game is loading...</div>
+}
 
 @code {
-    
+    private HubConnection? _connection;
+    public MultiplayerGame? Game;
+    private MudDropContainer<SimplePiece>? _board;
+
+    private string PlayerName { get; set; } = string.Empty;
+    private bool DrawOffered = false;
+    private string OpponentName = string.Empty;
+
+    private EPieceColor PlayerPieceColor =>
+        Game?.Player1.Name == PlayerName
+            ? EPieceColor.White
+            : EPieceColor.Black;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await GetToken();
+        var gameCode = await GetGameCode();
+        if (string.IsNullOrEmpty(gameCode))
+        {
+            Nav.NavigateTo("/queue");
+            return;
+        }
+        if (string.IsNullOrEmpty(token))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        _connection = new HubConnectionBuilder()
+            .WithUrl("http://localhost:7000/game", opts =>
+                opts.AccessTokenProvider = () => Task.FromResult(token)!)
+            .Build();
+
+        RegisterSignalrMethods();
+        await _connection.StartAsync();
+        await _connection.InvokeAsync("GetGameInfo", gameCode);
+    }
+
+    private void RegisterSignalrMethods()
+    {
+        _connection!.On<MultiplayerGame?>("GameInfo", async game =>
+        {
+            if (game is null)
+            {
+                Nav.NavigateTo("/gamequeue");
+                return;
+            }
+
+            Game = game;
+            if (_board is not null)
+            {
+                _board.Items = Game.GameInfo.Pieces;
+                _board.Refresh();
+            }
+            await InvokeAsync(StateHasChanged);
+        });
+
+        _connection.On<GameInfo>("GameInfoUpdate", async gameInfo =>
+        {
+            if (Game is null)
+                return;
+            Game.GameInfo = gameInfo;
+
+            if (_board is not null)
+            {
+                _board.Items = gameInfo.Pieces;
+                _board.Refresh();
+            }
+
+            await InvokeAsync(StateHasChanged);
+        });
+
+        _connection.On("NoAccess", () =>
+        {
+            Nav.NavigateTo("/gamequeue");
+        });
+
+        _connection.On<string>("PlayerName", async name =>
+        {
+            PlayerName = name;
+            await InvokeAsync(StateHasChanged);
+        });
+    }
+
+    private async Task<string?> GetToken()
+    {
+        var tok = await LocalStorage.GetItemAsStringAsync("Token");
+        return tok?.Trim('\"');
+    }
+
+    private async Task<string?> GetGameCode()
+    {
+        var code = await LocalStorage.GetItemAsStringAsync("GameCode");
+        return code?.Trim('\"');
+    }
+
+    private void ItemUpdated(MudItemDropInfo<SimplePiece> dropItem)
+    {
+        _connection?.InvokeAsync(
+            "MovePiece",
+            Game!.GameCode,
+            dropItem.Item!.Position,
+            new Vector(
+                int.Parse(dropItem.DropzoneIdentifier[1].ToString()),
+                int.Parse(dropItem.DropzoneIdentifier[0].ToString())
+            ));
+    }
+
+    private bool CanDrop(SimplePiece piece, string identifier)
+    {
+        if (piece.EPieceColor != PlayerPieceColor)
+            return false;
+
+        if (Game!.GameInfo.CurrentTurn != piece.EPieceColor)
+            return false;
+
+        var target = new Vector(
+            int.Parse(identifier[1].ToString()),
+            int.Parse(identifier[0].ToString())
+        );
+        return true; // TODO: Replace with real validation
+    }
+
+    private async Task OfferDraw() =>
+        await _connection!.InvokeAsync("OfferDraw", Game!.GameCode);
+
+    private async Task Resign()
+    {
+        await _connection!.InvokeAsync("Resign", Game!.GameCode);
+    }
+
+    private async Task AcceptDraw()
+    {
+        await _connection!.InvokeAsync("AcceptDraw", Game!.GameCode);
+    }
+
+    private async Task DeclineDraw()
+    {
+        await _connection!.InvokeAsync("DeclineDraw", Game!.GameCode);
+    }
+
+
 }

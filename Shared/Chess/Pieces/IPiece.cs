@@ -13,8 +13,9 @@ public interface IPiece
     public bool Repetitive { get; set; }
     public List<Vector> AvailableMoves { get; set; }
     public List<Vector> VisibleFields { get; set; }
+    public bool Active { get; set; }
 
     public void CheckAvailableMoves();
     public void CheckVisibleFields();
-    public void Move();
+    public void Move(Vector location);
 }

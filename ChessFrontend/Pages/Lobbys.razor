@@ -1,0 +1,90 @@
+﻿@page "/lobbys"
+@using Blazored.LocalStorage
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.SignalR.Client
+@using Shared.Lobby
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager Nav
+@attribute [Authorize]
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column align-center justify-center" Style="height: 100vh;">
+    <MudPaper Elevation="6" Class="p-6" Style="width: 100%; border-radius: 16px;">
+        <MudText Typo="Typo.h4" Color="Color.Primary" Align="Align.Center" Class="mb-4">Available Lobbies</MudText>
+
+        @if (_lobbys.Count == 0)
+        {
+            <MudText Typo="Typo.body1" Align="Align.Center" Color="Color.Secondary">
+                No lobbies found. Be the first to create one!
+            </MudText>
+        }
+        else
+        {
+            @foreach (var lobby in _lobbys)
+            {
+                <MudPaper Class="mb-2 p-4" Elevation="2" Style="border-radius: 12px;">
+                    <MudText Typo="Typo.h6">@lobby.Name</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Owner: @lobby.OwnerName</MudText>
+                </MudPaper>
+            }
+        }
+
+        <MudDivider Class="my-4" />
+
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CreateLobby" FullWidth="true">
+            Add Lobby
+        </MudButton>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private HubConnection _connection;
+    private List<LobbyInfo> _lobbys = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await GetToken();
+        if (string.IsNullOrEmpty(token))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        _connection = new HubConnectionBuilder()
+            .WithUrl("http://localhost:7000/lobby", options =>
+            {
+                options.AccessTokenProvider = () => Task.FromResult(token)!;
+            }).Build();
+
+        RegisterSignalrMethods();
+        await _connection.StartAsync();
+        await _connection.SendAsync("GetStatus");
+        await _connection.SendAsync("GetLobby");
+    }
+
+    private void RegisterSignalrMethods()
+    {
+        _connection.On<string>("GetStatus", (s) =>
+        {
+            Console.WriteLine("Status: " + s);
+        });
+
+        _connection.On<List<LobbyInfo>>("ReceiveLobby", async (lobbies) =>
+        {
+            Console.WriteLine(lobbies.Count);
+            _lobbys = lobbies;
+            await InvokeAsync(StateHasChanged);
+        });
+    }
+
+    private async Task<string?> GetToken()
+    {
+        var token = await LocalStorage.GetItemAsStringAsync("Token");
+        return token?.Trim('\"');
+    }
+
+    private async Task CreateLobby()
+    {
+        Console.WriteLine("CreateLobby");
+        await _connection.InvokeAsync("AddLobby", "Test" + new Random().Next(1, 100), false, "");
+    }
+}

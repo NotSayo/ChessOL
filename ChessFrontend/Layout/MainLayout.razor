@@ -1,22 +1,56 @@
 ﻿@inherits LayoutComponentBase
+@using MudBlazor
 
-<MudThemeProvider/>
-<MudPopoverProvider/>
-<MudSnackbarProvider/>
-<MudDialogProvider/>
+<MudLayout>
 
-<MudDrawerContainer Class="mud-height-full">
-    <MudDrawer Open="true" Fixed="false" Elevation="1" Variant="@DrawerVariant.Persistent" OpenMiniOnHover="true">
-        <MudNavMenu>
-            <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AccountCircle">Account</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.LibraryBooks">Library</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Group">Community</MudNavLink>
-        </MudNavMenu>
-    </MudDrawer>
-    <MudAppBar Color="Color.Primary" Fixed="false" Class="d-flex justify-end">
-        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" />
-    </MudAppBar>
-    <MudContainer Class="mud-height-full d-flex justify-center">
-        @Body
-    </MudContainer>
-</MudDrawerContainer>
+    <!-- Burger Icon Button - Fixed on screen -->
+    <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                   Color="Color.Primary"
+                   Class="burger-toggle"
+                   OnClick="@ToggleDrawer" />
+
+    <MudDrawerContainer Class="mud-height-full">
+
+        <MudDrawer @bind-Open="_drawerOpen"
+                   Fixed="true"
+                   Elevation="2"
+                   Variant="DrawerVariant.Responsive"
+                   Class="drawer-full">
+
+            <MudNavMenu>
+                <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                               Color="Color.Primary"
+                               OnClick="@ToggleDrawer" />
+            </MudNavMenu>
+
+            <MudNavMenu Class="pb-4">
+                <MudText Typo="Typo.h6" Class="ml-4 mt-2 text-primary">
+                    ♟ ChessOL
+                </MudText>
+
+                <MudNavLink Href="/" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
+                <MudNavLink Href="/gameQueue" Icon="@Icons.Material.Filled.People">Queue</MudNavLink>
+                <MudNavLink Href="https://github.com/notsayo/chessol" Icon="@Icons.Material.Filled.Source">GitHub</MudNavLink>
+            </MudNavMenu>
+
+        </MudDrawer>
+
+        <MudMainContent Style="overflow-y: auto;">
+            <MudContainer MaxWidth="MaxWidth.False"
+                          Class="page-wrapper d-flex flex-column"
+                          Style="padding: 2rem;">
+                @Body
+            </MudContainer>
+        </MudMainContent>
+
+    </MudDrawerContainer>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+
+    private void ToggleDrawer()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}

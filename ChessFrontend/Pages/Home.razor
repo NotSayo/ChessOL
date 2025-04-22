@@ -1,7 +1,41 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager Navigation
 
-<PageTitle>Home</PageTitle>
+<MudContainer MaxWidth="MaxWidth.Medium" Class="flex-grow-1 d-flex flex-column align-center justify-center">
+    <MudPaper Elevation="6" Class="p-6" Style="width: 100%; border-radius: 20px;">
+        <div class="d-flex flex-column align-center text-center">
 
-<h1>Hello, world!</h1>
+            <MudText Typo="Typo.h4" Color="Color.Primary" Class="mb-1">
+                ♟ Welcome to <strong>ChessOL</strong>
+            </MudText>
 
-Welcome to your new app.
+            <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Class="mb-4">
+                Play chess. Anytime. Anywhere.
+            </MudText>
+
+            <AuthorizeView>
+                <Authorized>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large"
+                               OnClick="@(() => Navigation.NavigateTo("/gamequeue"))">
+                        Play Now
+                    </MudButton>
+                </Authorized>
+                <NotAuthorized>
+                    <MudStack Direction="Row" JustifyContent="Center" Spacing="2">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/login">Login</MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Href="/register">Register</MudButton>
+                    </MudStack>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+    </MudPaper>
+
+    @* <MudPaper Elevation="1" Class="p-6 mt-8" Style="width: 100%; border-radius: 16px;"> *@
+    @*     <MudText Typo="Typo.h5" Class="mb-2">What is ChessOL?</MudText> *@
+    @*     <MudText Typo="Typo.body1" Color="Color.Secondary"> *@
+    @*         ChessOL is your modern online chess arena. Join public lobbies, challenge friends, or practice against AI. *@
+    @*         Built with performance, accessibility, and community in mind. *@
+    @*     </MudText> *@
+    @* </MudPaper> *@
+</MudContainer>
