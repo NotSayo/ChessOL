@@ -15,6 +15,13 @@ public class MultiplayerGame
     [JsonIgnore]
     public GameInstance? Instance { get; set; }
 
+    public bool IsGameOver { get; set; }
+    public string Winner { get; set; } = string.Empty;
+
+    public bool DrawRequested { get; set; } = false;
+    public bool DrawAccepted { get; set; } = false;
+    public string DrawRequestedByPlayer { get; set; } = string.Empty;
+
     public MultiplayerGame()
     {
     }
@@ -49,6 +56,9 @@ public class MultiplayerGame
             sPiece.AssignIcon();
             simplePieces.Add(sPiece);
         }
+
+        Winner = Instance.Winner;
+        IsGameOver = Instance.IsGameOver;
 
         GameInfo = new GameInfo
         {

@@ -5,7 +5,6 @@
 <MudContainer MaxWidth="MaxWidth.Medium" Class="flex-grow-1 d-flex flex-column align-center justify-center">
     <MudPaper Elevation="6" Class="p-6" Style="width: 100%; border-radius: 20px;">
         <div class="d-flex flex-column align-center text-center">
-            <img src="images/chess-hero.png" alt="Chess Piece" style="max-width: 180px; margin-bottom: 1.5rem;" />
 
             <MudText Typo="Typo.h4" Color="Color.Primary" Class="mb-1">
                 ♟ Welcome to <strong>ChessOL</strong>
@@ -18,8 +17,8 @@
             <AuthorizeView>
                 <Authorized>
                     <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large"
-                               OnClick="@(() => Navigation.NavigateTo("/lobbys"))">
-                        View Active Lobbies
+                               OnClick="@(() => Navigation.NavigateTo("/gamequeue"))">
+                        Play Now
                     </MudButton>
                 </Authorized>
                 <NotAuthorized>
@@ -32,11 +31,11 @@
         </div>
     </MudPaper>
 
-    <MudPaper Elevation="1" Class="p-6 mt-8" Style="width: 100%; border-radius: 16px;">
-        <MudText Typo="Typo.h5" Class="mb-2">What is ChessOL?</MudText>
-        <MudText Typo="Typo.body1" Color="Color.Secondary">
-            ChessOL is your modern online chess arena. Join public lobbies, challenge friends, or practice against AI.
-            Built with performance, accessibility, and community in mind.
-        </MudText>
-    </MudPaper>
+    @* <MudPaper Elevation="1" Class="p-6 mt-8" Style="width: 100%; border-radius: 16px;"> *@
+    @*     <MudText Typo="Typo.h5" Class="mb-2">What is ChessOL?</MudText> *@
+    @*     <MudText Typo="Typo.body1" Color="Color.Secondary"> *@
+    @*         ChessOL is your modern online chess arena. Join public lobbies, challenge friends, or practice against AI. *@
+    @*         Built with performance, accessibility, and community in mind. *@
+    @*     </MudText> *@
+    @* </MudPaper> *@
 </MudContainer>

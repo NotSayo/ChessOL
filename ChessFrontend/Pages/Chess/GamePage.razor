@@ -10,45 +10,76 @@
 
 @inject NavigationManager Nav
 @inject ILocalStorageService LocalStorage
+@inject IDialogService DialogService
+
 
 <PageTitle>Chess</PageTitle>
 
 @if (Game is not null && !string.IsNullOrEmpty(PlayerName))
 {
-    <MudContainer>
+
+    @if (Game?.IsGameOver == true)
+    {
+        <MudCard Class="p-3 mt-2 text-center mb-5" Elevation="4" Style="background-color: #f9f9fb;">
+            <MudCardHeader Class="justify-center">
+                <MudText Typo="Typo.h5" Class="d-flex align-center justify-center">
+                    <MudIcon Icon="@Icons.Material.Filled.Celebration" Class="mr-2 text-success" />
+                    GAME OVER!
+                </MudText>
+            </MudCardHeader>
+
+            <MudCardContent>
+                <MudText Typo="Typo.subtitle1" Class="mb-4">
+                    @if (string.IsNullOrEmpty(Game.Winner))
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Handshake" Class="mr-1 text-warning" />
+                        <span><b>It's a draw!</b></span>
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.EmojiEvents" Class="mr-1 text-primary" />
+                        <span><b>@(Game.Winner)</b> won the game</span>
+                    }
+                </MudText>
+
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.ArrowBack"
+                           OnClick="@(() => Nav.NavigateTo("/gamequeue"))">
+                    Back to Queue
+                </MudButton>
+            </MudCardContent>
+        </MudCard>
+    }
+    <div class="d-flex flex-column flex-lg-row justify-content-start align-start p-4 gap-5 c chess-wrapper">
         <MudDropContainer T="SimplePiece"
-                          Items="Game.GameInfo.Pieces"
-                          CanDropClass="mud-border-info"
-                          NoDropClass="mud-border-error"
-                          @ref="_board"
-                          CanDrop="CanDrop"
-                          ItemsSelector="@( (item, dropzone) => item.Position.ToStringIdentifier() == dropzone )"
-                          ItemDropped="ItemUpdated"
-                          Class="border-2 border-solid mud-border-lines-default">
+          Items="Game.GameInfo.Pieces"
+          CanDropClass="mud-border-info"
+          NoDropClass="mud-border-error"
+          @ref="_board"
+          CanDrop="CanDrop"
+          ItemsSelector="@( (item, dropzone) => item.Position.ToStringIdentifier() == dropzone )"
+          ItemDropped="ItemUpdated"
+          Class="border-2 border-solid rounded-lg"
+          Style="display: inline-block;">
             <ChildContent>
-                @* Loop over 0→7 for display, but compute “real” coords based on your color *@
                 @for (int displayRow = 0; displayRow < 8; displayRow++)
                 {
                     <div class="d-flex">
                         @for (int displayCol = 0; displayCol < 8; displayCol++)
                         {
-                            // Flip indices if you're Black
-                            var boardRow = PlayerPieceColor == EPieceColor.White
-                                               ? displayRow
-                                               : 7 - displayRow;
-                            var boardCol = PlayerPieceColor == EPieceColor.White
-                                               ? displayCol
-                                               : 7 - displayCol;
+                            var boardRow = PlayerPieceColor == EPieceColor.White ? displayRow : 7 - displayRow;
+                            var boardCol = PlayerPieceColor == EPieceColor.White ? displayCol : 7 - displayCol;
 
                             var id = $"{boardCol}{boardRow}";
                             var isDark = (displayRow + displayCol) % 2 == 1;
-                            var bg = isDark ? "background-color:grey;" : "background-color:brown;";
+                            var bg = isDark ? "background-color:#A52A2A;" : "background-color:#808080;";
 
                             <MudDropZone T="SimplePiece"
-                                         Identifier="@id"
-                                         DraggingClass="mud-theme-success"
-                                         Class="d-flex justify-center align-center border-2 border-solid docs-gray-bg mud-border-lines-default"
-                                         Style="@($"{bg} height:64px; width:64px;")" />
+                             Identifier="@id"
+                             DraggingClass="chess-tile dragging"
+                             Class="chess-tile d-flex justify-center align-center border"
+                             Style="@($"{bg}")" />
                         }
                     </div>
                 }
@@ -56,33 +87,88 @@
 
             <ItemRenderer>
                 <div class="d-flex justify-center align-center flex-grow-1">
-                    @* Draw each piece in the correct color *@
                     @{
-                        var iconColor = context.EPieceColor == EPieceColor.White
-                                            ? "color: #FFFFFF;"
-                                            : "color: #000000;";
+                        var iconColor = context.EPieceColor == EPieceColor.White ? "color: #fff;" : "color: #000;";
                     }
                     <MudIcon Icon="@context.Icon" Size="Size.Large" Style="@iconColor" />
                 </div>
             </ItemRenderer>
         </MudDropContainer>
-    </MudContainer>
+
+        <div class="d-flex flex-column gap-3">
+            <MudCard Class="p-3" Elevation="4">
+                <MudCardHeader>
+                    <MudText Typo="Typo.h6">
+                        <MudIcon Icon="@Icons.Material.Filled.Info" Class="mr-1 text-primary" />
+                        <b>Game Info</b>
+                    </MudText>
+                </MudCardHeader>
+
+                <MudCardContent>
+                    <MudStack Spacing="1">
+                        <MudText>
+                            <MudIcon Icon="@Icons.Material.Filled.VpnKey" Class="mr-1 text-secondary" />
+                            <b>Code:</b> @Game.GameCode
+                        </MudText>
+                        <MudText>
+                            <MudIcon Icon="@Icons.Material.Filled.Person" Class="mr-1 text-secondary" />
+                            <b>White:</b> @Game.Player1.Name
+                        </MudText>
+                        <MudText>
+                            <MudIcon Icon="@Icons.Material.Filled.Person" Class="mr-1 text-secondary" />
+                            <b>Black:</b> @Game.Player2.Name
+                        </MudText>
+                        <MudText>
+                            <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Class="mr-1 text-secondary" />
+                            <b>You:</b> @PlayerName
+                        </MudText>
+                    </MudStack>
+                </MudCardContent>
+            </MudCard>
+
+            <div class="d-flex gap-2">
+                <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="OfferDraw">
+                    Offer Draw
+                </MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="Resign">
+                    Resign
+                </MudButton>
+            </div>
+
+
+            @if (Game.DrawRequested)
+            {
+                <MudCard Class="p-3" Elevation="4">
+                    <MudCardContent>
+                        <MudText Typo="Typo.subtitle1">
+                            <MudIcon Icon="@Icons.Material.Filled.Handshake" Class="mr-1 text-warning" />
+                            <b>@(Game.DrawRequestedByPlayer == PlayerName ? Game.Player2.Name : Game.Player1.Name)</b> is requesting a draw.
+                        </MudText>
+
+                        <div class="d-flex gap-2 mt-3 justify-center">
+                            <MudButton Disabled="@(Game.DrawRequestedByPlayer == PlayerName)"
+                                       Color="Color.Success"
+                                       Variant="Variant.Filled"
+                                       OnClick="AcceptDraw">
+                                <MudIcon Icon="@Icons.Material.Filled.Check" Class="mr-1" /> Yes
+                            </MudButton>
+                            <MudButton Disabled="@(Game.DrawRequestedByPlayer == PlayerName)"
+                                       Color="Color.Error"
+                                       Variant="Variant.Outlined"
+                                       OnClick="DeclineDraw">
+                                <MudIcon Icon="@Icons.Material.Filled.Close" Class="mr-1" /> No
+                            </MudButton>
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+
+            }
+        </div>
+    </div>
 }
 else
 {
-    <div>Game is still loading...</div>
-}
-
-@if (Game is not null)
-{
-    <div>Code: @Game.GameCode</div>
-    <div>P1: @Game.Player1.Name</div>
-    <div>P2: @Game.Player2.Name</div>
-}
-
-@if (!string.IsNullOrEmpty(PlayerName))
-{
-    <div>Name: @PlayerName</div>
+    <div class="p-4">Game is loading...</div>
 }
 
 @code {
@@ -91,6 +177,9 @@ else
     private MudDropContainer<SimplePiece>? _board;
 
     private string PlayerName { get; set; } = string.Empty;
+    private bool DrawOffered = false;
+    private string OpponentName = string.Empty;
+
     private EPieceColor PlayerPieceColor =>
         Game?.Player1.Name == PlayerName
             ? EPieceColor.White
@@ -98,7 +187,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var token    = await GetToken();
+        var token = await GetToken();
         var gameCode = await GetGameCode();
         if (string.IsNullOrEmpty(gameCode))
         {
@@ -134,7 +223,7 @@ else
             Game = game;
             if (_board is not null)
             {
-                _board.Items   = Game.GameInfo.Pieces;
+                _board.Items = Game.GameInfo.Pieces;
                 _board.Refresh();
             }
             await InvokeAsync(StateHasChanged);
@@ -144,20 +233,20 @@ else
         {
             if (Game is null)
                 return;
-
             Game.GameInfo = gameInfo;
+
             if (_board is not null)
             {
-                _board.Items   = gameInfo.Pieces;
+                _board.Items = gameInfo.Pieces;
                 _board.Refresh();
             }
+
             await InvokeAsync(StateHasChanged);
         });
 
         _connection.On("NoAccess", () =>
         {
             Nav.NavigateTo("/gamequeue");
-            return;
         });
 
         _connection.On<string>("PlayerName", async name =>
@@ -203,6 +292,26 @@ else
             int.Parse(identifier[1].ToString()),
             int.Parse(identifier[0].ToString())
         );
-        return piece.AvailableMoves.Contains(target);
+        return true; // TODO: Replace with real validation
     }
+
+    private async Task OfferDraw() =>
+        await _connection!.InvokeAsync("OfferDraw", Game!.GameCode);
+
+    private async Task Resign()
+    {
+        await _connection!.InvokeAsync("Resign", Game!.GameCode);
+    }
+
+    private async Task AcceptDraw()
+    {
+        await _connection!.InvokeAsync("AcceptDraw", Game!.GameCode);
+    }
+
+    private async Task DeclineDraw()
+    {
+        await _connection!.InvokeAsync("DeclineDraw", Game!.GameCode);
+    }
+
+
 }

@@ -100,10 +100,97 @@ public class GameHub : Hub
         if (!piece.Active)
             return false;
 
-        if(piece.AvailableMoves.All(m => m != newPosition))
-            return false;
+        // if(piece.AvailableMoves.All(m => m != newPosition))
+        //     return false;
+
+        // TODO ENABLE WHEN PIECE LOGIC IS FIXED!
 
 
         return true;
+    }
+
+    public async Task Resign(string gameCode)
+    {
+        Console.WriteLine("Resign called");
+        if (!CheckAccess(gameCode))
+        {
+            await Clients.Caller.SendAsync("NoAccess");
+            return;
+        }
+
+        var game = GameStore.ActiveGame.FirstOrDefault(s => s.GameCode == gameCode);
+        var username = Context.User!.Claims.First(s => s.Type == ClaimTypes.Name).Value;
+        game!.DrawRequested = false;
+        game!.Instance!.IsGameOver = true;
+        game.Instance.Winner = game.Player1.Name == username ? game.Player2.Name : game.Player1.Name;
+        game.UpdateGameInfo();
+        await Clients.Users(game.Player1.PlayerId, game.Player2.PlayerId).SendAsync("GameInfo", game);
+    }
+
+    public async Task OfferDraw(string gameCode)
+    {
+        Console.WriteLine("Draw offered");
+        if (!CheckAccess(gameCode))
+        {
+            await Clients.Caller.SendAsync("NoAccess");
+            return;
+        }
+        var game = GameStore.ActiveGame.FirstOrDefault(s => s.GameCode == gameCode);
+        var username = Context.User!.Claims.First(s => s.Type == ClaimTypes.Name).Value;
+        if (game!.DrawRequested)
+        {
+            if (game.DrawRequestedByPlayer != username)
+            {
+                return;
+            }
+            return;
+        }
+
+        Console.WriteLine("Username: " + username);
+        game.DrawRequested = true;
+        game.DrawRequestedByPlayer = username;
+        game.UpdateGameInfo();
+        await Clients.Users(game.Player1.PlayerId, game.Player2.PlayerId).SendAsync("GameInfo", game);
+    }
+
+    public async Task AcceptDraw(string gameCode)
+    {
+        Console.WriteLine("Draw accepted");
+        if (!CheckAccess(gameCode))
+        {
+            await Clients.Caller.SendAsync("NoAccess");
+            return;
+        }
+        var game = GameStore.ActiveGame.FirstOrDefault(s => s.GameCode == gameCode);
+        var username = Context.User!.Claims.First(s => s.Type == ClaimTypes.Name).Value;
+        if (!game!.DrawRequested)
+            return;
+        if (game.DrawRequestedByPlayer == username)
+            return;
+        game.DrawAccepted = true;
+        game.Instance!.IsGameOver = true;
+        game.DrawRequested = false;
+        game.UpdateGameInfo();
+        await Clients.Users(game.Player1.PlayerId, game.Player2.PlayerId).SendAsync("GameInfo", game);
+    }
+
+    public async Task DeclineDraw(string gameCode)
+    {
+        Console.WriteLine("Draw declined");
+        if (!CheckAccess(gameCode))
+        {
+            await Clients.Caller.SendAsync("NoAccess");
+            return;
+        }
+        var game = GameStore.ActiveGame.FirstOrDefault(s => s.GameCode == gameCode);
+        var username = Context.User!.Claims.First(s => s.Type == ClaimTypes.Name).Value;
+        if (!game!.DrawRequested)
+            return;
+        if (game.DrawRequestedByPlayer == username)
+            return;
+        game.DrawRequested = false;
+        game.DrawRequestedByPlayer = string.Empty;
+        game.UpdateGameInfo();
+        await Clients.Users(game.Player1.PlayerId, game.Player2.PlayerId).SendAsync("GameInfo", game);
     }
 }

@@ -12,6 +12,8 @@ public class GameInstance
     public List<IPiece> TakenPiecesWhite { get; set; }
 
     public EPieceColor CurrentTurn { get; set; } = EPieceColor.White;
+    public bool IsGameOver { get; set; } = false;
+    public string Winner { get; set; } = string.Empty;
 
     public GameInstance()
     {
@@ -94,6 +96,7 @@ public class GameInstance
             (oldPiece!.PieceColor == EPieceColor.White ? TakenPiecesWhite : TakenPiecesBlack).Add(oldPiece);
             oldPiece.Moves = new List<Vector>();
             oldPiece.Active = false;
+            Pieces.Remove(oldPiece);
         }
         Board[piece.Position.Y, piece.Position.X] = piece;
 
@@ -101,9 +104,12 @@ public class GameInstance
 
     public void MovePiece(IPiece piece, Vector newPosition)
     {
+        if (IsGameOver)
+            return;
+        RemoveFromBoard(piece);
         piece!.Position = newPosition;
-
-        piece.Move(newPosition);
+        AddToBoard(piece);
+        // piece.Move(newPosition);
         CurrentTurn = CurrentTurn == EPieceColor.White ? EPieceColor.Black : EPieceColor.White;
         Pieces.ForEach(p => p.CheckAvailableMoves());
     }
