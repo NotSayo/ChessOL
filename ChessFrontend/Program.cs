@@ -19,7 +19,7 @@ builder.Services.AddScoped<CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<CustomAuthenticationStateProvider>());
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress =new Uri("http://localhost:7000")});
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress =new Uri($"{WebConfiguration.BackendUrl}")});
 builder.Services.AddScoped<ApiAccessor>();
 builder.Services.AddBlazoredLocalStorage();
 

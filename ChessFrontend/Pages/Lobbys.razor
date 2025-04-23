@@ -1,5 +1,6 @@
 ﻿@page "/lobbys"
 @using Blazored.LocalStorage
+@using ChessFrontend.ServerAccess
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.SignalR.Client
 @using Shared.Lobby
@@ -50,7 +51,7 @@
         }
 
         _connection = new HubConnectionBuilder()
-            .WithUrl("http://localhost:7000/lobby", options =>
+            .WithUrl($"{WebConfiguration.BackendUrl}/lobby", options =>
             {
                 options.AccessTokenProvider = () => Task.FromResult(token)!;
             }).Build();

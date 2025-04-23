@@ -100,6 +100,8 @@ public class GameHub : Hub
         if (!piece.Active)
             return false;
 
+
+
         // if(piece.AvailableMoves.All(m => m != newPosition))
         //     return false;
 

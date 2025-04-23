@@ -1,5 +1,6 @@
 ﻿@page "/game"
 @using Blazored.LocalStorage
+@using ChessFrontend.ServerAccess
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.SignalR.Client
 @using Shared.Chess.GameManager
@@ -52,7 +53,8 @@
         </MudCard>
     }
     <div class="d-flex flex-column flex-lg-row justify-content-start align-start p-4 gap-5 c chess-wrapper">
-        <MudDropContainer T="SimplePiece"
+        <div class="board-container-outer">
+            <MudDropContainer T="SimplePiece"
           Items="Game.GameInfo.Pieces"
           CanDropClass="mud-border-info"
           NoDropClass="mud-border-error"
@@ -94,6 +96,7 @@
                 </div>
             </ItemRenderer>
         </MudDropContainer>
+        </div>
 
         <div class="d-flex flex-column gap-3">
             <MudCard Class="p-3" Elevation="4">
@@ -201,7 +204,7 @@ else
         }
 
         _connection = new HubConnectionBuilder()
-            .WithUrl("http://localhost:7000/game", opts =>
+            .WithUrl($"{WebConfiguration.BackendUrl}/game", opts =>
                 opts.AccessTokenProvider = () => Task.FromResult(token)!)
             .Build();
 
